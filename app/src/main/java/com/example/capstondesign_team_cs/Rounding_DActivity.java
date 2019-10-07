@@ -16,7 +16,7 @@ import android.widget.Toast;
 public class Rounding_DActivity extends AppCompatActivity {
     Button btnStartRounding, btnCancelRounding;
     TextView txtInfoRounding;
-    int nSelectReason;
+    int nSelectReason = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,19 +58,22 @@ public class Rounding_DActivity extends AppCompatActivity {
                         .setSingleChoiceItems(cancelReasons, -1, new DialogInterface.OnClickListener() {
                         @Override
                             public void onClick(DialogInterface dialog, int which) {
+                                Log.d("which = ", Integer.toString(which));
                                 nSelectReason = which;
                             }
                         })
                         .setPositiveButton("확인", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                which = nSelectReason;
-                                if(which >= 0) {
+                                Log.d("nSelection = ", Integer.toString(nSelectReason));
+                                //which = nSelectReason;
+                                if(nSelectReason >= 0) {
                                     txtInfoRounding.setText("회진시간이 아닙니다.");
                                     Toast.makeText(getApplicationContext(),
                                             cancelReasons[nSelectReason], Toast.LENGTH_LONG).show();
                                     btnStartRounding.setEnabled(true);
                                     btnCancelRounding.setEnabled(false);
+                                    nSelectReason = -1;
                                 }
                                 else {
                                     Toast.makeText(Rounding_DActivity.this,
