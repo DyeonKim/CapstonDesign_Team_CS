@@ -10,9 +10,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".Rounding_DActivity" />
+        <activity android:name=".Rounding_PActivity" />
+        <activity android:name=".ArticleActivity"   />
+        <activity android:name=".ChatActivity"  />
         <activity android:name=".CreateAccountActivity" />
         <activity android:name=".MainActivity" />
-        <activity android:name=".Rounding_PActivity" />
         <activity android:name=".LoginActivity">
 
             <intent-filter>
