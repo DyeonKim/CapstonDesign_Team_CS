@@ -13,7 +13,6 @@
         <activity android:name=".CreateAccountActivity" />
         <activity android:name=".MainActivity" />
         <activity android:name=".Rounding_PActivity" />
-        <activity android:name=".ChattingActivity" />
         <activity android:name=".LoginActivity">
 
             <intent-filter>
