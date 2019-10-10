@@ -1,6 +1,8 @@
 package com.example.capstondesign_team_cs;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
@@ -24,6 +26,17 @@ public class ArticleActivity extends AppCompatActivity {
             Button button = new AppCompatButton(this);
             button.setText(SimpleDB.getIndexes().get(i));
 
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(v.getContext(), DetailActivity.class);
+
+                    String buttonText = (String) ((Button) v).getText() ;
+
+                    intent.putExtra("key", buttonText);
+                    startActivity(intent);
+                }
+            });
             ll.addView(button);
         }
     }
