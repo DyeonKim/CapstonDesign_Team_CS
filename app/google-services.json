@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "773439640127",
+    "firebase_url": "https://rounding-system.firebaseio.com",
+    "project_id": "rounding-system",
+    "storage_bucket": "rounding-system.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:773439640127:android:5fd73cf9fd909b697f1e8a",
+        "android_client_info": {
+          "package_name": "com.example.capstondesign_team_cs"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "773439640127-aug922gkbbig4i35qkn9v40h6rgpa7n9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPxATxdnaC8xL8l0tI0X_5jSb-dwdso18"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "773439640127-aug922gkbbig4i35qkn9v40h6rgpa7n9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
