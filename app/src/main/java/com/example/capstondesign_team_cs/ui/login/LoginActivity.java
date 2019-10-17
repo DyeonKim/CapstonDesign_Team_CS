@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -38,6 +39,7 @@ public class LoginActivity extends AppCompatActivity {
     RadioGroup loginRadioGroup;
     Button loginButton, createAccountButton;
     ProgressBar loadingProgressBar;
+    String idGroup;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,7 +50,7 @@ public class LoginActivity extends AppCompatActivity {
 
         usernameEditText = findViewById(R.id.username);
         passwordEditText = findViewById(R.id.password);
-        loginRadioGroup = findViewById(R.id.radioGroupLogin);
+        loginRadioGroup = findViewById(R.id.loginRadioGroup);
         loginButton = findViewById(R.id.btnLogin);
         createAccountButton = findViewById(R.id.btnCreateAccount);
         loadingProgressBar = findViewById(R.id.loading);
@@ -124,11 +126,15 @@ public class LoginActivity extends AppCompatActivity {
         loginRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                if(checkedId == R.id.rbtnPatient) {
-
-                }
-                else if(checkedId == R.id.rbtnDoctor) {
-
+                switch (checkedId) {
+                    case R.id.rbtnPatient :
+                        idGroup = "Patient";
+                        Log.d("idGroup", idGroup);
+                        break;
+                    case R.id.rbtnDoctor :
+                        idGroup = "Doctor";
+                        Log.d("idGroup", idGroup);
+                        break;
                 }
             }
         });
@@ -140,6 +146,7 @@ public class LoginActivity extends AppCompatActivity {
                 loginViewModel.login(usernameEditText.getText().toString(),
                         passwordEditText.getText().toString());
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                intent.putExtra("idGroup", idGroup);
                 startActivity(intent);
             }
         });

@@ -40,30 +40,22 @@
         android:selectAllOnFocus="true" />
 
     <RadioGroup
-        android:id="@+id/radioGroupLogin"
+        android:id="@+id/loginRadioGroup"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_horizontal"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="4dp"
-            android:orientation="horizontal">
+        <RadioButton
+            android:id="@+id/rbtnPatient"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="환자" />
 
-            <RadioButton
-                android:id="@+id/rbtnPatient"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="환자" />
-
-            <RadioButton
-                android:id="@+id/rbtnDoctor"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="의사" />
-        </LinearLayout>
+        <RadioButton
+            android:id="@+id/rbtnDoctor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="의사" />
 
     </RadioGroup>
 
