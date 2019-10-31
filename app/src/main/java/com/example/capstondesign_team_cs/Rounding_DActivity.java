@@ -2,7 +2,9 @@ package com.example.capstondesign_team_cs;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -26,10 +28,16 @@ public class Rounding_DActivity extends AppCompatActivity {
     private MinewBeaconManager mMinewBeaconManager;
     private boolean isScanning = false;
     final static int BT_REQUEST_ENABLE = 2;
+    final static int PERMISSIONS = 100;
 
     Button btnStartRounding, btnCancelRounding;
     TextView txtInfoRounding;
     int nSelectReason = -1;
+
+   private void checkPermissions() {
+       ActivityCompat.requestPermissions(this,
+               new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSIONS);
+   }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +50,7 @@ public class Rounding_DActivity extends AppCompatActivity {
 
         btnCancelRounding.setEnabled(false);
 
+        checkPermissions();
         initManager();
         initListener();
     }
@@ -90,6 +99,7 @@ public class Rounding_DActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which) {
                                 Log.d("nSelection = ", Integer.toString(nSelectReason));
                                 if(nSelectReason >= 0) {
+                                    onDestroy();
                                     txtInfoRounding.setText("회진시간이 아닙니다.");
                                     Toast.makeText(getApplicationContext(), cancelReasons[nSelectReason], Toast.LENGTH_LONG).show();
                                     btnStartRounding.setEnabled(true);
@@ -110,31 +120,33 @@ public class Rounding_DActivity extends AppCompatActivity {
         mMinewBeaconManager.setDeviceManagerDelegateListener(new MinewBeaconManagerListener() {
             @Override
             public void onAppearBeacons(List<MinewBeacon> minewBeacons) {
-                
+                if(!minewBeacons.isEmpty()) {
+                    String deviceName = minewBeacons.get(0).getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_Name).getStringValue();
+                    Toast.makeText(getApplicationContext(), deviceName + "  in range", Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
             public void onDisappearBeacons(List<MinewBeacon> minewBeacons) {
-                for (MinewBeacon minewBeacon : minewBeacons) {
-                    String deviceName = minewBeacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_Name).getStringValue();
-                    Toast.makeText(getApplicationContext(), deviceName + "  out range", Toast.LENGTH_SHORT).show();
+                if(!minewBeacons.isEmpty()) {
+                    for (MinewBeacon minewBeacon : minewBeacons) {
+                        String deviceName = minewBeacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_Name).getStringValue();
+                        Toast.makeText(getApplicationContext(), deviceName + "  out range", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
 
             @Override
             public void onRangeBeacons(List<MinewBeacon> minewBeacons) {
-
             }
 
             @Override
             public void onUpdateState(BluetoothState bluetoothState) {
                 switch (bluetoothState) {
                     case BluetoothStatePowerOff:
-                        Toast.makeText(getApplicationContext(), "블루투스가 활성화 되어 있지 않습니다.", Toast.LENGTH_LONG).show();
                         showBLEDialog();
                         break;
                     case BluetoothStatePowerOn:
-                        Toast.makeText(getApplicationContext(), "블루투스가 이미 활성화 되어 있습니다.", Toast.LENGTH_LONG).show();
                         break;
                 }
             }
@@ -158,34 +170,32 @@ public class Rounding_DActivity extends AppCompatActivity {
     }
 
     private void initBeacon() {
-        if (mMinewBeaconManager != null) {
-            BluetoothState bluetoothState = mMinewBeaconManager.checkBluetoothState();
-            switch (bluetoothState) {
-                case BluetoothStateNotSupported:
-                    Toast.makeText(getApplicationContext(), "블루투스를 지원하지 않는 기기입니다", Toast.LENGTH_SHORT).show();
-                    finish();
-                    break;
-                case BluetoothStatePowerOff:
-                    Toast.makeText(getApplicationContext(), "블루투스가 활성화 되어 있지 않습니다.", Toast.LENGTH_LONG).show();
-                    showBLEDialog();
-                    break;
-                case BluetoothStatePowerOn:
-                    Toast.makeText(getApplicationContext(), "블루투스가 이미 활성화 되어 있습니다.", Toast.LENGTH_LONG).show();
-                    break;
-            }
+       if (mMinewBeaconManager != null) {
+           BluetoothState bluetoothState = mMinewBeaconManager.checkBluetoothState();
+           switch (bluetoothState) {
+               case BluetoothStateNotSupported:
+                   Toast.makeText(getApplicationContext(), "블루투스를 지원하지 않는 기기입니다", Toast.LENGTH_SHORT).show();
+                   finish();
+                   break;
+               case BluetoothStatePowerOff:
+                   showBLEDialog();
+                   break;
+               case BluetoothStatePowerOn:
+                   break;
+           }
         }
-        if (isScanning) {
-            isScanning = false;
-            if (mMinewBeaconManager != null) {
-                mMinewBeaconManager.stopScan();
-            }
-        } else {
-            isScanning = true;
-            try {
-                mMinewBeaconManager.startScan();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+       if (!isScanning) {
+           isScanning = true;
+           try {
+               mMinewBeaconManager.startScan();
+           } catch (Exception e) {
+               e.printStackTrace();
+           }
+       } else {
+           isScanning = false;
+           if (mMinewBeaconManager != null) {
+               mMinewBeaconManager.stopScan();
+           }
+       }
     }
 }
