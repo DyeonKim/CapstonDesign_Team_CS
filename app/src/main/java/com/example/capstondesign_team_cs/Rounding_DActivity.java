@@ -19,11 +19,7 @@ import com.minew.beacon.BluetoothState;
 import com.minew.beacon.MinewBeacon;
 import com.minew.beacon.MinewBeaconManager;
 import com.minew.beacon.MinewBeaconManagerListener;
-import com.minew.beacon.MinewBeaconValue;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -127,13 +123,7 @@ public class Rounding_DActivity extends AppCompatActivity {
         beaconManager.setDeviceManagerDelegateListener(new MinewBeaconManagerListener() {
             @Override
             public void onAppearBeacons(List<MinewBeacon> beacons) {
-                for(MinewBeacon beacon : beacons) {
-                    String strUUID = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_UUID) .getStringValue();
-                    if(strUUID != null && strUUID.equalsIgnoreCase(uuid[0].toString())) {
-                        String deviceName = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_Name).getStringValue();
-                        tvRoom.setText(deviceName + "입장");
-                    }
-                }
+
             }
 
             @Override
@@ -149,7 +139,13 @@ public class Rounding_DActivity extends AppCompatActivity {
 
             @Override
             public void onRangeBeacons(List<MinewBeacon> beacons) {
-
+                for(MinewBeacon beacon : beacons) {
+                    String strUUID = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_UUID) .getStringValue();
+                    if(strUUID != null && strUUID.equalsIgnoreCase(uuid[0].toString())) {
+                        String deviceName = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_Name).getStringValue();
+                        tvRoom.setText(deviceName + "입장");
+                    }
+                }
             }
 
             @Override
@@ -207,6 +203,15 @@ public class Rounding_DActivity extends AppCompatActivity {
         //stop scan
         if (isScanning) {
             beaconManager.stopScan();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case BT_REQUEST_ENABLE:
+                break;
         }
     }
 }
