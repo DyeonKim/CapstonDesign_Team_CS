@@ -1,13 +1,14 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
     defaultConfig {
         applicationId "com.example.capstondesign_team_cs"
-        minSdkVersion 16
+        minSdkVersion 18
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -45,4 +46,3 @@ repositories {
     mavenCentral()
 }
 
-apply plugin: 'com.google.gms.google-services'

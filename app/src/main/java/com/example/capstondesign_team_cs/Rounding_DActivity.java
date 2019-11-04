@@ -19,7 +19,11 @@ import com.minew.beacon.BluetoothState;
 import com.minew.beacon.MinewBeacon;
 import com.minew.beacon.MinewBeaconManager;
 import com.minew.beacon.MinewBeaconManagerListener;
+import com.minew.beacon.MinewBeaconValue;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,7 +37,7 @@ public class Rounding_DActivity extends AppCompatActivity {
     UUID[] uuid = new UUID[1];
 
     Button btnStartRounding, btnCancelRounding;
-    TextView tvInfoRounding;
+    TextView tvInfoRounding, tvRoom;
 
     private void checkPermissions() {
         ActivityCompat.requestPermissions(this,
@@ -50,7 +54,8 @@ public class Rounding_DActivity extends AppCompatActivity {
 
         btnStartRounding = findViewById(R.id.btnStartRounding);
         btnCancelRounding = findViewById(R.id.btnCancelRounding);
-        tvInfoRounding = findViewById(R.id.txtInfoRounding);
+        tvInfoRounding = findViewById(R.id.tvInfoRounding);
+        tvRoom = findViewById(R.id.tvRoom);
 
         btnCancelRounding.setEnabled(false);
 
@@ -72,7 +77,7 @@ public class Rounding_DActivity extends AppCompatActivity {
                         initBluetooth();
                         beaconScan();
                         tvInfoRounding.setText("회진 중");
-                        Toast.makeText(Rounding_DActivity.this,"회진을 시작합니다.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(),"회진을 시작합니다.", Toast.LENGTH_LONG).show();
                         btnStartRounding.setEnabled(false);
                         btnCancelRounding.setEnabled(true);
                     }
@@ -100,14 +105,14 @@ public class Rounding_DActivity extends AppCompatActivity {
                                 if(nSelectReason >= 0) {
                                     beaconScan();
                                     tvInfoRounding.setText("회진시간이 아닙니다.");
+                                    tvRoom.setText("");
                                     Toast.makeText(getApplicationContext(), cancelReasons[nSelectReason], Toast.LENGTH_LONG).show();
                                     btnStartRounding.setEnabled(true);
                                     btnCancelRounding.setEnabled(false);
                                     nSelectReason = -1;
                                 }
                                 else {
-                                    Toast.makeText(Rounding_DActivity.this,
-                                            "이유를 선택하세요.", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(getApplicationContext(), "이유를 선택하세요.", Toast.LENGTH_LONG).show();
                                 }
                             }
                         })
@@ -122,33 +127,29 @@ public class Rounding_DActivity extends AppCompatActivity {
         beaconManager.setDeviceManagerDelegateListener(new MinewBeaconManagerListener() {
             @Override
             public void onAppearBeacons(List<MinewBeacon> beacons) {
-                if(!beacons.isEmpty()) {
-                    for(MinewBeacon beacon : beacons) {
-                        if(beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_UUID).getStringValue().equals(uuid)) {
-                            String deviceName = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_Name).getStringValue();
-                            Toast.makeText(getApplicationContext(), deviceName + "  in range", Toast.LENGTH_SHORT).show();
-                        }
+                for(MinewBeacon beacon : beacons) {
+                    String strUUID = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_UUID) .getStringValue();
+                    if(strUUID != null && strUUID.equalsIgnoreCase(uuid[0].toString())) {
+                        String deviceName = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_Name).getStringValue();
+                        tvRoom.setText(deviceName + "입장");
                     }
                 }
             }
 
             @Override
             public void onDisappearBeacons(List<MinewBeacon> beacons) {
-                if(!beacons.isEmpty()) {
-                    for (MinewBeacon beacon : beacons) {
-                        if(beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_UUID).getStringValue().equals(uuid)) {
-                            String deviceName = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_Name).getStringValue();
-                            Toast.makeText(getApplicationContext(), deviceName + "  out range", Toast.LENGTH_SHORT).show();
-                            beacons.remove(beacon);
-                        }
+                for(MinewBeacon beacon : beacons) {
+                    String strUUID = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_UUID) .getStringValue();
+                    if(strUUID != null && strUUID.equalsIgnoreCase(uuid[0].toString())) {
+                        String deviceName = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_Name).getStringValue();
+                        tvRoom.setText((deviceName + "퇴장"));
                     }
                 }
             }
 
             @Override
             public void onRangeBeacons(List<MinewBeacon> beacons) {
-                if(!isScanning)
-                    beacons.clear();
+
             }
 
             @Override
@@ -161,8 +162,10 @@ public class Rounding_DActivity extends AppCompatActivity {
                         break;
                 }
             }
+
         });
     }
+
     private void showBLEDialog() {
         Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
         startActivityForResult(enableIntent, BT_REQUEST_ENABLE);
