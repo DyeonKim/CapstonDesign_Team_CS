@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">CapstonDesign_Team_CS</string>
+    <string name="app_name">Team_CS</string>
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>

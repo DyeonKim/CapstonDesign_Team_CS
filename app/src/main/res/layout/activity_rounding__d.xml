@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:gravity="center_horizontal"
     android:layout_marginVertical="50dp"
-    tools:context=".Rounding_PActivity">
+    tools:context=".Rounding_DActivity">
 
     <TextView
         android:layout_width="wrap_content"
@@ -16,11 +16,16 @@
         android:textSize="10pt"
         android:text="회진 시간" />
     <TextView
-        android:id="@+id/txtInfoRounding"
+        android:id="@+id/tvInfoRounding"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="20pt"
         android:text="회진시간이 아닙니다."/>
+    <TextView
+        android:id="@+id/tvRoom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15pt"/>
     <Button
         android:id="@+id/btnStartRounding"
         android:layout_width="wrap_content"
