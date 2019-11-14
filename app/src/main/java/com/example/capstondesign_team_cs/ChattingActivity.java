@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -42,6 +43,18 @@ public class ChattingActivity extends AppCompatActivity {
         USER_NAME = intent.getStringExtra("userName");
 
         openChat(CHAT_NAME);
+
+        chat_send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (chat_edit.getText().toString().equals(""))
+                    return;
+
+                ChatDTO chat = new ChatDTO(USER_NAME, chat_edit.getText().toString());
+                databaseReference.child("chat").child(CHAT_NAME).push().setValue(chat);
+                chat_edit.setText("");
+            }
+        });
     }
 
     private void addMessage(DataSnapshot dataSnapshot, ArrayAdapter<String> adapter) {
