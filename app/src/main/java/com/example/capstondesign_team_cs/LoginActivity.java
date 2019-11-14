@@ -11,7 +11,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -38,7 +37,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     private RadioGroup loginRadioGroup;
 
     // [START declare_auth]
-    //private GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth mAuth;
     // [END declare_auth]
     FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -55,7 +53,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
         findViewById(R.id.btnLogin).setOnClickListener(this);
         findViewById(R.id.btnCreateAccount).setOnClickListener(this);
-        //findViewById(R.id.Google_Login);
 
 
         loginRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -76,12 +73,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
         // [START initialize_auth]
         // Initialize Firebase Auth
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
 
-        //mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         mAuth = FirebaseAuth.getInstance();
         // [END initialize_auth]
 
