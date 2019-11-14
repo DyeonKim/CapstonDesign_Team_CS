@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,13 +18,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-public class ChatActivity extends AppCompatActivity {
-
-    private String CHAT_NAME;
-    private String USER_NAME;
+public class ChattingActivity extends AppCompatActivity {
+    public String CHAT_NAME;
+    public String USER_NAME;
     private ListView chat_view;
-    private EditText chat_edit;
-    private Button chat_send;
+    public EditText chat_edit;
+    public Button chat_send;
 
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private DatabaseReference databaseReference = database.getReference();
@@ -44,18 +42,6 @@ public class ChatActivity extends AppCompatActivity {
         USER_NAME = intent.getStringExtra("userName");
 
         openChat(CHAT_NAME);
-
-        chat_send.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (chat_edit.getText().toString().equals(""))
-                    return;
-
-                ChatDTO chat = new ChatDTO(USER_NAME, chat_edit.getText().toString());
-                databaseReference.child("chat").child(CHAT_NAME).push().setValue(chat);
-                chat_edit.setText("");
-            }
-        });
     }
 
     private void addMessage(DataSnapshot dataSnapshot, ArrayAdapter<String> adapter) {

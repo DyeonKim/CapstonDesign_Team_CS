@@ -33,7 +33,6 @@ public class ChatMainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_main);
 
-
         user_chat = (EditText) findViewById(R.id.user_chat);
         user_edit = (EditText) findViewById(R.id.user_edit);
         user_next =  (Button) findViewById(R.id.user_next);
@@ -45,7 +44,7 @@ public class ChatMainActivity extends AppCompatActivity {
                 if (user_edit.getText().toString().equals("") || user_chat.getText().toString().equals(""))
                     return;
 
-                Intent intent = new Intent(ChatMainActivity.this, ChatActivity.class);
+                Intent intent = new Intent(ChatMainActivity.this, ChattingActivity.class);
                 intent.putExtra("chatName", user_chat.getText().toString());
                 intent.putExtra("userName", user_edit.getText().toString());
                 startActivity(intent);
