@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -123,7 +124,13 @@ public class Rounding_DActivity extends AppCompatActivity {
         beaconManager.setDeviceManagerDelegateListener(new MinewBeaconManagerListener() {
             @Override
             public void onAppearBeacons(List<MinewBeacon> beacons) {
-
+                for(MinewBeacon beacon : beacons) {
+                    String strUUID = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_UUID) .getStringValue();
+                    if(strUUID != null && strUUID.equalsIgnoreCase(uuid[0].toString())) {
+                        String deviceName = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_Name).getStringValue();
+                        Log.d("Appears", deviceName);
+                    }
+                }
             }
 
             @Override
@@ -132,6 +139,7 @@ public class Rounding_DActivity extends AppCompatActivity {
                     String strUUID = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_UUID) .getStringValue();
                     if(strUUID != null && strUUID.equalsIgnoreCase(uuid[0].toString())) {
                         String deviceName = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_Name).getStringValue();
+                        Log.d("Disappear", deviceName);
                         tvRoom.setText((deviceName + "퇴장"));
                     }
                 }
@@ -140,10 +148,13 @@ public class Rounding_DActivity extends AppCompatActivity {
             @Override
             public void onRangeBeacons(List<MinewBeacon> beacons) {
                 for(MinewBeacon beacon : beacons) {
-                    String strUUID = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_UUID) .getStringValue();
+                    String strUUID = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_UUID).getStringValue();
                     if(strUUID != null && strUUID.equalsIgnoreCase(uuid[0].toString())) {
-                        String deviceName = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_Name).getStringValue();
-                        tvRoom.setText(deviceName + "입장");
+                        if(beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_RSSI).getIntValue() > - 65) {
+                            String deviceName = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_Name).getStringValue();
+                            Log.d("state", deviceName);
+                            tvRoom.setText(deviceName + "입장");
+                        }
                     }
                 }
             }

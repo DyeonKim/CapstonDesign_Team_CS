@@ -1,8 +1,6 @@
 package com.example.capstondesign_team_cs;
 
 public class ChatDTO {
-
-
     private String userName;
     private String message;
 
@@ -27,4 +25,5 @@ public class ChatDTO {
     public void setMessage(String message) {
         this.message = message;
     }
+
 }

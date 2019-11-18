@@ -5,11 +5,14 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
+
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -18,17 +21,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ChatMainActivity"/>
-        <activity android:name=".ChatActivity" />
+        <activity android:name=".ChattingActivity"/>
+        <activity android:name=".ChatMainActivity" />
         <activity android:name=".DetailActivity" />
         <activity android:name=".Rounding_DActivity" />
         <activity android:name=".Rounding_PActivity" />
         <activity android:name=".ArticleActivity" />
         <activity android:name=".CreateAccountActivity" />
         <activity android:name=".MainActivity" />
-        <activity android:name=".BaseActivity"/>
-        <activity
-            android:name=".LoginActivity">
+        <activity android:name=".BaseActivity" />
+        <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -36,10 +38,11 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.minew.beacon.ScanService"/>
+        <service android:name="com.minew.beacon.ScanService" />
+
         <receiver android:name="com.minew.beacon.BluetoothChangedReceiver">
             <intent-filter>
-                <action android:name="android.bluetooth.adapter.action.STATE_CHANGED"/>
+                <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
             </intent-filter>
         </receiver>
     </application>

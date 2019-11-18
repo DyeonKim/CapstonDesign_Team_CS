@@ -19,13 +19,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-public class ChatActivity extends AppCompatActivity {
-
-    private String CHAT_NAME;
-    private String USER_NAME;
+public class ChattingActivity extends AppCompatActivity {
+    public String CHAT_NAME;
+    public String USER_NAME;
     private ListView chat_view;
-    private EditText chat_edit;
-    private Button chat_send;
+    public EditText chat_edit;
+    public Button chat_send;
 
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private DatabaseReference databaseReference = database.getReference();
