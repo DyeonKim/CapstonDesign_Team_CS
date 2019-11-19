@@ -1,11 +1,14 @@
 package com.example.capstondesign_team_cs;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
@@ -21,61 +24,44 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class LoginActivity extends BaseActivity implements View.OnClickListener{
     private static final String TAG = "Login";
-    private static final int RC_SIGN_IN = 9001;
-    private static final int SIGN_IN = 9002;
-    private static final int CREATE_ACCOUNT = 9003;
+    private static final int SIGN_IN = 9001;
+    private static final int CREATE_ACCOUNT = 9002;
     private int buttonCode = -1;
-    String idGroup;
+    boolean state = false;
+    List userInfo;  //Name, Email, Password, Department/Dr, Room
 
     private EditText mEmailField;
     private EditText mPasswordField;
-    private RadioGroup loginRadioGroup;
 
     // [START declare_auth]
     private FirebaseAuth mAuth;
     // [END declare_auth]
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        userInfo = new ArrayList();
         mEmailField = findViewById(R.id.userEmail);
         mPasswordField = findViewById(R.id.password);
-
-        loginRadioGroup = findViewById(R.id.loginRadioGroup);
 
         findViewById(R.id.btnLogin).setOnClickListener(this);
         findViewById(R.id.btnCreateAccount).setOnClickListener(this);
 
-
-        loginRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch (checkedId) {
-                    case R.id.rbtnPatient :
-                        idGroup = "Patient";
-                        Log.d("idGroup", idGroup);
-                        break;
-                    case R.id.rbtnDoctor :
-                        idGroup = "Doctor";
-                        Log.d("idGroup", idGroup);
-                        break;
-                }
-            }
-        });
-
         // [START initialize_auth]
         // Initialize Firebase Auth
-
         mAuth = FirebaseAuth.getInstance();
         // [END initialize_auth]
+        db = FirebaseFirestore.getInstance();
 
     }
 
@@ -92,9 +78,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
     private void createAccount(String email, String password) {
         Log.d(TAG, "createAccount:" + email);
-        if (!validateForm()) {
-            return;
-        }
 
         showProgressDialog();
 
@@ -147,7 +130,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
     private void signIn(String email, String password) {
         Log.d(TAG, "signIn:" + email);
-        if (!validateForm()) {
+        if (!validateSignInForm()) {
             return;
         }
 
@@ -179,7 +162,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         // [END sign_in_with_email]
     }
 
-    private boolean validateForm() {
+    private boolean validateSignInForm() {
         boolean valid = true;
 
         String email = mEmailField.getText().toString();
@@ -205,11 +188,32 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         hideProgressDialog();
         if (user != null) {
             if (buttonCode == CREATE_ACCOUNT) {
+                Map<String, Object> account = new HashMap<>();
+                account.put("Email", userInfo.get(1).toString());
+                account.put("Name", userInfo.get(0).toString());
+                account.put("state", state);
+
+                // Add a new document with a generated ID
+                db.collection("Account")
+                        .add(account)
+                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                            @Override
+                            public void onSuccess(DocumentReference documentReference) {
+                                Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error adding document", e);
+                            }
+                        });
+
 
             }
             else if (buttonCode == SIGN_IN) {
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                intent.putExtra("idGroup", idGroup);
+                intent.putExtra("state", state);
                 startActivity(intent);
             }
         } else {
@@ -221,13 +225,52 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     public void onClick(View v) {
         int i = v.getId();
         if (i == R.id.btnCreateAccount) {
-            createAccount(mEmailField.getText().toString(), mPasswordField.getText().toString());
+            setRegister();
         } else if (i == R.id.btnLogin) {
             signIn(mEmailField.getText().toString(), mPasswordField.getText().toString());
-        } //else if (i == R.id.Google_Login) {
-            //Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-            //startActivityForResult(signInIntent, RC_SIGN_IN);
-       // }
+        }
+    }
+
+    public void setRegister() {
+        final LinearLayout linear = (LinearLayout) View.inflate(this, R.layout.dialog_register, null);
+
+        new AlertDialog.Builder(this)
+                .setTitle("회원가입")
+                .setView(linear)
+                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        final RadioGroup stateGroup = linear.findViewById(R.id.stateGroup);
+                        final EditText editName = linear.findViewById(R.id.editName);
+                        final EditText editEmail = linear.findViewById(R.id.editEmail);
+                        final EditText editPassword = linear.findViewById(R.id.editPassword);
+
+                        userInfo.add(editName.getText().toString());
+                        userInfo.add(editEmail.getText().toString());
+                        userInfo.add(editPassword.getText().toString());
+
+                        stateGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                            @Override
+                            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                                switch (checkedId) {
+                                    case R.id.statePatient:
+                                        state = false;
+                                        break;
+                                    case R.id.stateDoctor:
+                                        state = true;
+                                        break;
+                                }
+                            }
+                        });
+                        createAccount(editEmail.getText().toString(), editPassword.getText().toString());
+                    }
+                })
+                .setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) { }
+                })
+                .show();
+
     }
 }
 
