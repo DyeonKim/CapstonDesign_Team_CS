@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
@@ -35,7 +36,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     private static final int CREATE_ACCOUNT = 9002;
     private int buttonCode = -1;
     boolean state = false;
-    List userInfo;  //Name, Email, Password, Department/Dr, Room
+    List userInfo;  //Name, Email, Department/Dr
 
     private EditText mEmailField;
     private EditText mPasswordField;
@@ -184,6 +185,36 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         return valid;
     }
 
+    private boolean validateRegisterForm(EditText nameField, EditText emailField, EditText passwordField) {
+        boolean valid = true;
+
+        String name = nameField.getText().toString();
+        if(TextUtils.isEmpty(name)) {
+            nameField.setError("Required");
+            valid = false;
+        } else {
+            nameField.setError(null);
+        }
+
+        String email = emailField.getText().toString();
+        if (TextUtils.isEmpty(email)) {
+            emailField.setError("Required.");
+            valid = false;
+        } else {
+            emailField.setError(null);
+        }
+
+        String password = passwordField.getText().toString();
+        if (TextUtils.isEmpty(password)) {
+            passwordField.setError("Required.");
+            valid = false;
+        } else {
+            passwordField.setError(null);
+        }
+
+        return valid;
+    }
+
     private void updateUI(FirebaseUser user) {
         hideProgressDialog();
         if (user != null) {
@@ -245,6 +276,9 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                         final EditText editEmail = linear.findViewById(R.id.editEmail);
                         final EditText editPassword = linear.findViewById(R.id.editPassword);
 
+                        if(!validateRegisterForm(editName, editEmail, editPassword)) {
+                            return;
+                        }
                         userInfo.add(editName.getText().toString());
                         userInfo.add(editEmail.getText().toString());
                         userInfo.add(editPassword.getText().toString());
@@ -252,12 +286,21 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                         stateGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
                             @Override
                             public void onCheckedChanged(RadioGroup group, int checkedId) {
+                                Log.d("checkedId : ", Integer.toString(checkedId));
                                 switch (checkedId) {
                                     case R.id.statePatient:
+                                        Log.d("checkedId : ", Integer.toString(checkedId));
                                         state = false;
                                         break;
                                     case R.id.stateDoctor:
+                                        Log.d("checkedId : ", Integer.toString(checkedId));
                                         state = true;
+                                        break;
+                                    default:
+                                        RadioButton statePatient = findViewById(R.id.statePatient);
+                                        RadioButton stateDoctor = findViewById(R.id.stateDoctor);
+                                        statePatient.setError("Required.");
+                                        stateDoctor.setError("Required.");
                                         break;
                                 }
                             }
