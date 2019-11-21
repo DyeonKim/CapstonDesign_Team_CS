@@ -10,7 +10,7 @@ import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
     Button btnInfoRounding, btnChatting;
-    String idGroup;
+    Boolean state;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,17 +21,17 @@ public class MainActivity extends AppCompatActivity {
         btnChatting = findViewById(R.id.btnChatting);
 
         Intent logIn_intent = getIntent();
-        idGroup = logIn_intent.getExtras().getString("idGroup");
-        Log.d("idGroup",idGroup);
+        state = logIn_intent.getExtras().getBoolean("state");
+        Log.d("state",state.toString());
 
         btnInfoRounding.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(idGroup.equals("Patient")) {
-                    Intent intent = new Intent(MainActivity.this, Rounding_PActivity.class);
-                    startActivity(intent);
-                } else if(idGroup.equals("Doctor")) {
+                if(state) {
                     Intent intent = new Intent(MainActivity.this, Rounding_DActivity.class);
+                    startActivity(intent);
+                } else {
+                    Intent intent = new Intent(MainActivity.this, Rounding_PActivity.class);
                     startActivity(intent);
                 }
             }

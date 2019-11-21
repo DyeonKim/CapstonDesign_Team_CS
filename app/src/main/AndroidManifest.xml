@@ -27,7 +27,6 @@
         <activity android:name=".Rounding_DActivity" />
         <activity android:name=".Rounding_PActivity" />
         <activity android:name=".ArticleActivity" />
-        <activity android:name=".CreateAccountActivity" />
         <activity android:name=".MainActivity" />
         <activity android:name=".BaseActivity" />
         <activity android:name=".LoginActivity">
