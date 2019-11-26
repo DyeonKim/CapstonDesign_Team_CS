@@ -14,13 +14,11 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="horizontal">
-
         <RadioButton
             android:id="@+id/statePatient"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/radio_patient" />
-
         <RadioButton
             android:id="@+id/stateDoctor"
             android:layout_width="wrap_content"
@@ -32,20 +30,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/account_name" />
-
     <EditText
         android:id="@+id/editName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="textPersonName"
-        android:hint="Name" />
+        android:hint="@string/account_name_eng" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/account_email" />
-
     <EditText
         android:id="@+id/editEmail"
         android:layout_width="match_parent"
@@ -60,7 +56,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/account_password" />
-
     <EditText
         android:id="@+id/editPassword"
         android:layout_width="match_parent"
@@ -72,5 +67,47 @@
         android:imeOptions="actionDone"
         android:inputType="textPassword"
         android:selectAllOnFocus="true" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/account_phone" />
+
+    <EditText
+        android:id="@+id/editPhone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+
+        android:hint="@string/account_phone_eng"
+        android:imeActionLabel="@string/action_sign_in_short"
+        android:imeOptions="actionDone"
+        android:inputType="number"
+        android:selectAllOnFocus="true" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/account_phone_warning" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/buttonRegisterOK"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/button_ok" />
+
+        <Button
+            android:id="@+id/buttonRegisterCancel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/button_cancel" />
+    </LinearLayout>
 
 </LinearLayout>

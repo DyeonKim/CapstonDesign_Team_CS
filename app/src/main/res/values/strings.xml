@@ -15,6 +15,13 @@
     <string name="radio_doctor">의사</string>
     <string name="radio_patient">환자</string>
     <string name="account_name">이름</string>
+    <string name="account_name_eng">Name</string>
     <string name="account_email">이메일</string>
     <string name="account_password">비밀번호</string>
+    <string name="account_phone">핸드폰 번호</string>
+    <string name="account_phone_eng">Phone</string>
+    <string name="account_phone_warning">\'-\'는 빼고 입력해주세요</string>
+    <!-- String related to button-->
+    <string name="button_ok">"확인"</string>
+    <string name="button_cancel">"취소"</string>
 </resources>
