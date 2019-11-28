@@ -1,17 +1,11 @@
 package com.example.capstondesign_team_cs;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -36,7 +30,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     private static final int SIGN_IN = 9001;
     private static final int CREATE_ACCOUNT = 9002;
     private int buttonCode = -1;
-    boolean state;
+    boolean mState = false;
     List userInfo;  //Name, Email
 
     private EditText mEmailField;
@@ -93,26 +87,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                             Log.d(TAG, "createUserWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             buttonCode = CREATE_ACCOUNT;
-
-                            // Create a new user with a first and last name
-                            Map<String, Object> account = new HashMap<>();
-                            account.put("email", mEmailField.getText().toString());
-
-                            // Add a new document with a generated ID
-                            db.collection("accounts")
-                                    .add(account)
-                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                        @Override
-                                        public void onSuccess(DocumentReference documentReference) {
-                                            Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Log.w(TAG, "Error adding document", e);
-                                        }
-                                    });
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
@@ -191,9 +165,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         if (user != null) {
             if (buttonCode == CREATE_ACCOUNT) {
                 Map<String, Object> account = new HashMap<>();
-                account.put("Email", userInfo.get(1).toString());
+                account.put("State", mState);
                 account.put("Name", userInfo.get(0).toString());
-                account.put("state", state);
+                account.put("Email", userInfo.get(1).toString());
+                account.put("Phone", userInfo.get(2).toString());
 
                 // Add a new document with a generated ID
                 db.collection("Account").document(userInfo.get(1).toString())
@@ -202,6 +177,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                             @Override
                             public void onSuccess(Void aVoid) {
                                 Log.d(TAG, "DocumentSnapshot added with ID: " + userInfo.get(1).toString());
+                                Toast.makeText(getApplicationContext(),"계정 생성 완료", Toast.LENGTH_LONG).show();
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {
@@ -213,11 +189,11 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
 
             }
-            else if (buttonCode == SIGN_IN) {
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                intent.putExtra("state", state);
-                startActivity(intent);
-            }
+        else if (buttonCode == SIGN_IN) {
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            intent.putExtra("state", mState);
+            startActivity(intent);
+        }
         } else {
 
         }
@@ -235,14 +211,14 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
     public void setRegister() {
         RegisterDialog registerDialog = new RegisterDialog(this);
-        registerDialog.setOnDismissListener(new RegisterDialog.RegisterDialogListener() {
+        registerDialog.setDialogListener(new RegisterDialog.RegisterDialogListener() {
             @Override
             public void onPositiveClicked(Boolean state, String name, String email, String password, String phone) {
-                this.state = state;
+                mState = state;
                 userInfo.add(name);
                 userInfo.add(email);
-                userInfo.add(password);
                 userInfo.add(phone);
+                createAccount(email, password);
             }
 
             @Override

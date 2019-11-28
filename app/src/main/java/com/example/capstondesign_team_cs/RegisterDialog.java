@@ -20,7 +20,9 @@ public class RegisterDialog extends Dialog implements View.OnClickListener {
     private EditText editPassword;
     private EditText editPhone;
     private Context context;
-    boolean state = false;
+    private boolean state = false;
+
+    private int mCheckedId = -1;
 
     private RegisterDialogListener registerDialogListener;
 
@@ -32,6 +34,10 @@ public class RegisterDialog extends Dialog implements View.OnClickListener {
     interface RegisterDialogListener {
         void onPositiveClicked(Boolean state, String name, String email, String password, String phone);
         void onNegativeClicked();
+    }
+
+    public void setDialogListener(RegisterDialogListener registerDialogListener) {
+        this.registerDialogListener = registerDialogListener;
     }
 
     @Override
@@ -59,16 +65,12 @@ public class RegisterDialog extends Dialog implements View.OnClickListener {
                     case R.id.statePatient:
                         Log.d("checkedId : ", Integer.toString(checkedId));
                         state = false;
+                        mCheckedId = checkedId;
                         break;
                     case R.id.stateDoctor:
                         Log.d("checkedId : ", Integer.toString(checkedId));
                         state = true;
-                        break;
-                    default:
-                        RadioButton statePatient = findViewById(R.id.statePatient);
-                        RadioButton stateDoctor = findViewById(R.id.stateDoctor);
-                        statePatient.setError("Required.");
-                        stateDoctor.setError("Required.");
+                        mCheckedId = checkedId;
                         break;
                 }
             }
@@ -79,7 +81,7 @@ public class RegisterDialog extends Dialog implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.buttonRegisterOK:
-                if(validateRegisterForm(editName, editEmail, editPassword)) {
+                if(validateRegisterForm(editName, editEmail, editPassword, editPhone)) {
                     String name = editName.getText().toString();
                     String email = editEmail.getText().toString();
                     String password = editPassword.getText().toString();
@@ -96,12 +98,22 @@ public class RegisterDialog extends Dialog implements View.OnClickListener {
         }
     }
 
-    private boolean validateRegisterForm(EditText nameField, EditText emailField, EditText passwordField) {
+    private boolean validateRegisterForm(EditText nameField, EditText emailField, EditText passwordField, EditText phoneField) {
         boolean valid = true;
 
+        if(mCheckedId != R.id.stateDoctor && mCheckedId != R.id.statePatient) {
+            RadioButton statePatient = findViewById(R.id.statePatient);
+            RadioButton stateDoctor = findViewById(R.id.stateDoctor);
+            statePatient.setError("Required.");
+            stateDoctor.setError("Required.");
+            valid = false;
+        } else {
+            RadioButton statePatient = findViewById(R.id.statePatient);
+            RadioButton stateDoctor = findViewById(R.id.stateDoctor);
+            statePatient.setError(null);
+            stateDoctor.setError(null);
+        }
         String name = nameField.getText().toString();
-        Log.d("이름", name);
-
         if(TextUtils.isEmpty(name)) {
             nameField.setError("Required");
             valid = false;
@@ -110,7 +122,6 @@ public class RegisterDialog extends Dialog implements View.OnClickListener {
         }
 
         String email = emailField.getText().toString();
-        Log.d("이름", email);
         if (TextUtils.isEmpty(email)) {
             emailField.setError("Required.");
             valid = false;
@@ -119,12 +130,19 @@ public class RegisterDialog extends Dialog implements View.OnClickListener {
         }
 
         String password = passwordField.getText().toString();
-        Log.d("이름", password);
         if (TextUtils.isEmpty(password)) {
             passwordField.setError("Required.");
             valid = false;
         } else {
             passwordField.setError(null);
+        }
+
+        String phone = phoneField.getText().toString();
+        if(TextUtils.isEmpty(phone)) {
+            phoneField.setError("Required");
+            valid =false;
+        } else {
+            phoneField.setError(null);
         }
 
         return valid;
