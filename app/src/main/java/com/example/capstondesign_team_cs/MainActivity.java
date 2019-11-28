@@ -8,8 +8,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "Main";
     Button btnInfoRounding, btnChatting;
+    FirebaseAuth mAuth;
     Boolean state;
 
     @Override
@@ -22,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
         Intent logIn_intent = getIntent();
         state = logIn_intent.getExtras().getBoolean("state");
-        Log.d("state",state.toString());
+        Log.d(TAG + " state : ", state.toString());
 
         btnInfoRounding.setOnClickListener(new View.OnClickListener() {
             @Override

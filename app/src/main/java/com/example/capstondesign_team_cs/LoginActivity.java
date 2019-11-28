@@ -19,6 +19,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,8 +31,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     private static final int SIGN_IN = 9001;
     private static final int CREATE_ACCOUNT = 9002;
     private int buttonCode = -1;
-    boolean mState;
-    List userInfo;  //Name, Email, phone
+
+    UserInfo mUserInfo;
 
     private EditText mEmailField;
     private EditText mPasswordField;
@@ -39,14 +40,14 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     // [START declare_auth]
     private FirebaseAuth mAuth;
     // [END declare_auth]
-    FirebaseFirestore db;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        userInfo = new ArrayList();
+        mUserInfo = new UserInfo();
         mEmailField = findViewById(R.id.userEmail);
         mPasswordField = findViewById(R.id.password);
 
@@ -161,18 +162,18 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         if (user != null) {
             if (buttonCode == CREATE_ACCOUNT) {
                 Map<String, Object> account = new HashMap<>();
-                account.put("State", mState);
-                account.put("Name", userInfo.get(0).toString());
-                account.put("Email", userInfo.get(1).toString());
-                account.put("Phone", userInfo.get(2).toString());
+                account.put("State", mUserInfo.getUserState());
+                account.put("Name", mUserInfo.getUserName());
+                account.put("Email", mUserInfo.getUserEmail());
+                account.put("Phone", mUserInfo.getUserPhone());
 
                 // Add a new document with a generated ID
-                db.collection("Account").document(userInfo.get(1).toString())
+                db.collection("Account").document(mUserInfo.getUserEmail())
                         .set(account)
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                Log.d(TAG, "DocumentSnapshot added with ID: " + userInfo.get(1).toString());
+                                Log.d(TAG, "DocumentSnapshot added with ID: " + mUserInfo.getUserEmail());
                                 Toast.makeText(getApplicationContext(),"계정 생성 완료", Toast.LENGTH_LONG).show();
                             }
                         })
@@ -185,7 +186,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
             }
         else if (buttonCode == SIGN_IN) {
-            String email = mAuth.getCurrentUser().getEmail();
+            final String email = mAuth.getCurrentUser().getEmail();
+
             db.collection("Account").document(email)
                 .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
@@ -193,7 +195,14 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                         if(task.isSuccessful()) {
                             DocumentSnapshot document = task.getResult();
                             if(document.exists()) {
-                                mState = document.getBoolean("State");
+                                Boolean mState = document.getBoolean("State");
+                                Log.i(TAG + " mState", mState.toString());
+                                Log.i(TAG + "email", email);
+                                Log.i(TAG + " mState", mState.toString());
+                                Intent sign_intent = new Intent(getApplicationContext(), MainActivity.class);
+                                sign_intent.putExtra("email", email);
+                                sign_intent.putExtra("state", mState);
+                                startActivity(sign_intent);
                             } else {
                                 Log.d(TAG, "No Such Document");
                             }
@@ -202,10 +211,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                         }
                     }
                 });
-
-            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-            intent.putExtra("state", mState);
-            startActivity(intent);
         }
         } else {
             Log.d(TAG,"Error Sign In");
@@ -226,12 +231,30 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         RegisterDialog registerDialog = new RegisterDialog(this);
         registerDialog.setDialogListener(new RegisterDialog.RegisterDialogListener() {
             @Override
-            public void onPositiveClicked(Boolean state, String name, String email, String password, String phone) {
-                mState = state;
-                userInfo.add(name);
-                userInfo.add(email);
-                userInfo.add(phone);
-                createAccount(email, password);
+            public void onPositiveClicked(Boolean state, String name, final String email, final String password, String phone) {
+                mUserInfo.setUserInfo(state, name, email, phone);
+                String role, id;
+                if(state) {
+                    role = "Dr";    id = "D_id";
+                } else {
+                    role = "Patient";   id = "P_id";
+                }
+                db.collection(role)
+                        .whereEqualTo(id, phone)
+                        .whereEqualTo("Name", name)
+                        .get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if(task.isSuccessful()) {
+                                    Log.d(TAG,"Exist User");
+                                    createAccount(email, password);
+                                } else {
+                                    Log.d(TAG,"Not Exist User");
+                                    Toast.makeText(getApplicationContext(), "병원에 정보가 없습니다.", Toast.LENGTH_LONG);
+                                }
+                            }
+                        });
             }
 
             @Override
