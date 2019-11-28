@@ -21,7 +21,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
 }
+
+
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -44,6 +50,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-database:19.1.0'
     implementation 'com.google.firebase:firebase-firestore:21.1.1'
     implementation files('libs/minewBeaconScan.jar')
+    implementation 'com.google.android.gms:play-services-auth:17.0.0'
 }
 repositories {
     mavenCentral()

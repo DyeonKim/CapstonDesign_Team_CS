@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.UUID;
 
 
+
+
 public class Rounding_DActivity extends AppCompatActivity {
     final static int PERMISSIONS = 100;
     int nSelectReason = -1;
@@ -37,7 +39,7 @@ public class Rounding_DActivity extends AppCompatActivity {
     final static int BT_REQUEST_ENABLE = 2;
     boolean isScanning = false;
     UUID[] uuid = new UUID[1];
-    List<Integer> RSSI = new ArrayList<>();
+    List<Integer> rssi = new ArrayList<>();
 
     Button btnStartRounding, btnCancelRounding;
     TextView tvInfoRounding, tvRoom;
@@ -147,32 +149,44 @@ public class Rounding_DActivity extends AppCompatActivity {
                     if(strUUID != null && strUUID.equalsIgnoreCase(uuid[0].toString())) {
                         String deviceName = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_Name).getStringValue();
                         Log.d("Disappear", deviceName);
-
+                        //비콘퇴장
                     }
                 }
             }
 
             @Override
-            public void onRangeBeacons(List<MinewBeacon> beacons) {
-                for (MinewBeacon beacon : beacons) {
+            public void onRangeBeacons(final List<MinewBeacon> beacons) {
 
-                    String strUUID = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_UUID).getStringValue(); //비콘 uuid 가져오기
-                    if (strUUID != null && strUUID.equalsIgnoreCase(uuid[0].toString())) {
-                        RSSI.add(beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_RSSI).getIntValue()); //비콘 RSSI를 arraylist RSSI에 추가하기
-                        Integer maxRSSI = Collections.max(RSSI); //RSSI배열에서 가장 큰 값 찾기
-                        if (beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_RSSI).getIntValue() >= maxRSSI) {
-                            String deviceName = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_Name).getStringValue();
-                            Log.d("state", deviceName);
-                            tvRoom.setText(deviceName + "입장");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
 
-                            FirebaseFirestore db = FirebaseFirestore.getInstance(); //파이어스토어 서버에 접속
-                            DocumentReference rssiRef = db.collection("Dr").document("iTY7FVskVDagdrF5TntN"); //지금 로그인한 의료진의 document ID
-                            rssiRef.update("Location", deviceName);
+                        for (MinewBeacon beacon : beacons) {
 
 
+                            String strUUID = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_UUID).getStringValue(); //비콘 uuid 가져오기
+                            if (strUUID != null && strUUID.equalsIgnoreCase(uuid[0].toString())) {
+                                rssi.add(beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_RSSI).getIntValue()); //비콘 RSSI를 arraylist RSSI에 추가하기
+                                Integer max = Collections.max(rssi); //max : RSSI배열에서 가장 큰 값
+                                if (beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_RSSI).getIntValue() >= max) {
+                                    //String deviceName = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_Name).getStringValue();
+                                    String minor = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_Minor).getStringValue();
+                                    Log.d("state", minor);
+                                    tvRoom.setText(minor + "입장");
+
+                                    FirebaseFirestore db = FirebaseFirestore.getInstance(); //파이어스토어 서버에 접속
+
+
+                                    DocumentReference drRef = db.collection("Dr").document("Q0Ws10hupEXztzyQutcVKEf9pDn1"); //지금 로그인한 의료진의 document ID
+                                    drRef.update("Location", minor);
+
+
+                                }
+                            }
                         }
+                        rssi.clear();
                     }
-                }
+                });
             }
 
             @Override
