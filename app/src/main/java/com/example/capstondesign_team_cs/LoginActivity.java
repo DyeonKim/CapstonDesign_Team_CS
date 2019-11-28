@@ -1,16 +1,11 @@
 package com.example.capstondesign_team_cs;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,7 +17,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -35,8 +30,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     private static final int SIGN_IN = 9001;
     private static final int CREATE_ACCOUNT = 9002;
     private int buttonCode = -1;
-    boolean state = false;
-    List userInfo;  //Name, Email, Department/Dr
+    boolean mState;
+    List userInfo;  //Name, Email, phone
 
     private EditText mEmailField;
     private EditText mPasswordField;
@@ -58,14 +53,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         findViewById(R.id.btnLogin).setOnClickListener(this);
         findViewById(R.id.btnCreateAccount).setOnClickListener(this);
 
-        // [START initialize_auth]
-        // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
-        // [END initialize_auth]
         db = FirebaseFirestore.getInstance();
 
     }
-
 
     // [START on_start_check_user]
     @Override
@@ -76,58 +67,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         updateUI(currentUser);
     }
     // [END on_start_check_user]
-
-    private void createAccount(String email, String password) {
-        Log.d(TAG, "createAccount:" + email);
-
-        showProgressDialog();
-
-        // [START create_user_with_email]
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "createUserWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            buttonCode = CREATE_ACCOUNT;
-
-                            // Create a new user with a first and last name
-                            Map<String, Object> account = new HashMap<>();
-                            account.put("email", mEmailField.getText().toString());
-
-                            // Add a new document with a generated ID
-                            db.collection("accounts")
-                                    .add(account)
-                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                        @Override
-                                        public void onSuccess(DocumentReference documentReference) {
-                                            Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Log.w(TAG, "Error adding document", e);
-                                        }
-                                    });
-                            updateUI(user);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(getApplicationContext(), "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                            updateUI(null);
-                        }
-
-                        // [START_EXCLUDE]
-                        hideProgressDialog();
-                        // [END_EXCLUDE]
-                    }
-                });
-        // [END create_user_with_email]
-    }
 
     private void signIn(String email, String password) {
         Log.d(TAG, "signIn:" + email);
@@ -185,34 +124,36 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         return valid;
     }
 
-    private boolean validateRegisterForm(EditText nameField, EditText emailField, EditText passwordField) {
-        boolean valid = true;
+    private void createAccount(String email, String password) {
+        Log.d(TAG, "createAccount:" + email);
 
-        String name = nameField.getText().toString();
-        if(TextUtils.isEmpty(name)) {
-            nameField.setError("Required");
-            valid = false;
-        } else {
-            nameField.setError(null);
-        }
+        showProgressDialog();
 
-        String email = emailField.getText().toString();
-        if (TextUtils.isEmpty(email)) {
-            emailField.setError("Required.");
-            valid = false;
-        } else {
-            emailField.setError(null);
-        }
+        // [START create_user_with_email]
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(TAG, "createUserWithEmail:success");
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            buttonCode = CREATE_ACCOUNT;
+                            updateUI(user);
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                            Toast.makeText(getApplicationContext(), "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                            updateUI(null);
+                        }
 
-        String password = passwordField.getText().toString();
-        if (TextUtils.isEmpty(password)) {
-            passwordField.setError("Required.");
-            valid = false;
-        } else {
-            passwordField.setError(null);
-        }
-
-        return valid;
+                        // [START_EXCLUDE]
+                        hideProgressDialog();
+                        // [END_EXCLUDE]
+                    }
+                });
+        // [END create_user_with_email]
     }
 
     private void updateUI(FirebaseUser user) {
@@ -220,17 +161,19 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         if (user != null) {
             if (buttonCode == CREATE_ACCOUNT) {
                 Map<String, Object> account = new HashMap<>();
-                account.put("Email", userInfo.get(1).toString());
+                account.put("State", mState);
                 account.put("Name", userInfo.get(0).toString());
-                account.put("state", state);
+                account.put("Email", userInfo.get(1).toString());
+                account.put("Phone", userInfo.get(2).toString());
 
                 // Add a new document with a generated ID
-                db.collection("Account")
-                        .add(account)
-                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                db.collection("Account").document(userInfo.get(1).toString())
+                        .set(account)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
-                            public void onSuccess(DocumentReference documentReference) {
-                                Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "DocumentSnapshot added with ID: " + userInfo.get(1).toString());
+                                Toast.makeText(getApplicationContext(),"계정 생성 완료", Toast.LENGTH_LONG).show();
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {
@@ -240,15 +183,32 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                             }
                         });
 
+            }
+        else if (buttonCode == SIGN_IN) {
+            String email = mAuth.getCurrentUser().getEmail();
+            db.collection("Account").document(email)
+                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if(document.exists()) {
+                                mState = document.getBoolean("State");
+                            } else {
+                                Log.d(TAG, "No Such Document");
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
 
-            }
-            else if (buttonCode == SIGN_IN) {
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                intent.putExtra("state", state);
-                startActivity(intent);
-            }
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            intent.putExtra("state", mState);
+            startActivity(intent);
+        }
         } else {
-
+            Log.d(TAG,"Error Sign In");
         }
     }
 
@@ -263,57 +223,23 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     }
 
     public void setRegister() {
-        final LinearLayout linear = (LinearLayout) View.inflate(this, R.layout.dialog_register, null);
+        RegisterDialog registerDialog = new RegisterDialog(this);
+        registerDialog.setDialogListener(new RegisterDialog.RegisterDialogListener() {
+            @Override
+            public void onPositiveClicked(Boolean state, String name, String email, String password, String phone) {
+                mState = state;
+                userInfo.add(name);
+                userInfo.add(email);
+                userInfo.add(phone);
+                createAccount(email, password);
+            }
 
-        new AlertDialog.Builder(this)
-                .setTitle("회원가입")
-                .setView(linear)
-                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        final RadioGroup stateGroup = linear.findViewById(R.id.stateGroup);
-                        final EditText editName = linear.findViewById(R.id.editName);
-                        final EditText editEmail = linear.findViewById(R.id.editEmail);
-                        final EditText editPassword = linear.findViewById(R.id.editPassword);
+            @Override
+            public void onNegativeClicked() {
 
-                        if(!validateRegisterForm(editName, editEmail, editPassword)) {
-                            return;
-                        }
-                        userInfo.add(editName.getText().toString());
-                        userInfo.add(editEmail.getText().toString());
-                        userInfo.add(editPassword.getText().toString());
-
-                        stateGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-                            @Override
-                            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                                Log.d("checkedId : ", Integer.toString(checkedId));
-                                switch (checkedId) {
-                                    case R.id.statePatient:
-                                        Log.d("checkedId : ", Integer.toString(checkedId));
-                                        state = false;
-                                        break;
-                                    case R.id.stateDoctor:
-                                        Log.d("checkedId : ", Integer.toString(checkedId));
-                                        state = true;
-                                        break;
-                                    default:
-                                        RadioButton statePatient = findViewById(R.id.statePatient);
-                                        RadioButton stateDoctor = findViewById(R.id.stateDoctor);
-                                        statePatient.setError("Required.");
-                                        stateDoctor.setError("Required.");
-                                        break;
-                                }
-                            }
-                        });
-                        createAccount(editEmail.getText().toString(), editPassword.getText().toString());
-                    }
-                })
-                .setNegativeButton("취소", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) { }
-                })
-                .show();
-
+            }
+        });
+        registerDialog.show();
     }
 }
 
