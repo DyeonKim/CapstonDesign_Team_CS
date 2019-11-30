@@ -12,21 +12,29 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 
 public class ChatMainActivity extends AppCompatActivity {
 
-    private EditText user_chat, user_edit;
+    LoginActivity login = new LoginActivity();
+
+    private EditText user_edit;
+    private EditText user_chat;
     private Button user_next;
     private ListView chat_list;
 
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private DatabaseReference databaseReference = database.getReference("message");
+    private DatabaseReference dataRef = database.getReference("name");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,11 +51,18 @@ public class ChatMainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (user_edit.getText().toString().equals("") || user_chat.getText().toString().equals(""))
                     return;
-
+                //user_chat.getText().toString()
                 Intent intent = new Intent(ChatMainActivity.this, ChattingActivity.class);
-                intent.putExtra("chatName", user_chat.getText().toString());
-                intent.putExtra("userName", user_edit.getText().toString());
-                startActivity(intent);
+
+                if (login.idGroup.equals("Patient")) {
+                    intent.putExtra("chatName", user_chat.getText());
+                    intent.putExtra("userName", user_edit.getText().toString());
+                    startActivity(intent);
+                } else if (login.idGroup.equals("Dr")) {
+                    intent.putExtra("chatName", user_chat.getText());
+                    intent.putExtra("userName", user_edit.getText().toString());
+                    startActivity(intent);
+                }
             }
         });
 
