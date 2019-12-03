@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
     private Button btnInfoRounding, btnChatting, btnLogOut;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
-    private Boolean state = false;
+    private Boolean state;
     private String phone;
 
     @Override
@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
         FirebaseUser user = mAuth.getCurrentUser();
 
-        //getAccountInfo(user);
+        getAccountInfo(user);
 
         btnInfoRounding.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -48,11 +48,11 @@ public class MainActivity extends AppCompatActivity {
                 if(state != null) {
                     if(state) {
                         Intent intent = new Intent(MainActivity.this, Rounding_DActivity.class);
-                        //intent.putExtra("phone", phone);
+                        intent.putExtra("phone", phone);
                         startActivity(intent);
                     } else {
                         Intent intent = new Intent(MainActivity.this, Rounding_PActivity.class);
-                        //intent.putExtra("phone", phone);
+                        intent.putExtra("phone", phone);
                         startActivity(intent);
                     }
                 } else {
@@ -84,8 +84,8 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     Log.d(TAG,"Success get userInfo");
-                    final Boolean mState = documentSnapshot.getBoolean("state");
-                    final String mPhone = documentSnapshot.getString("phone");
+                    final Boolean mState = documentSnapshot.getBoolean("State");
+                    final String mPhone = documentSnapshot.getString("Phone");
                     Log.d(TAG + " mState, mPhone : ", mState + ", " + mPhone);
                     setExtraData(mState, mPhone);
                 }
