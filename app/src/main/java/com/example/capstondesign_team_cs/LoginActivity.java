@@ -1,10 +1,13 @@
 package com.example.capstondesign_team_cs;
 
 import android.content.Intent;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
+import android.view.Window;
 import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.Toast;
@@ -20,6 +23,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -207,11 +212,31 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
             if (buttonCode == CREATE_ACCOUNT) {
 
             }
-            else if (buttonCode == SIGN_IN) {
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                intent.putExtra("idGroup", idGroup);
-                startActivity(intent);
-            }
+        else if (buttonCode == SIGN_IN) {
+            final String email = mAuth.getCurrentUser().getEmail();
+
+            db.collection("Account").document(email)
+                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if(document.exists()) {
+                                Boolean mState = document.getBoolean("State");
+                                Log.i(TAG + " email, mState", email + ", " + mState.toString());
+                                Intent sign_intent = new Intent(getApplicationContext(), MainActivity.class);
+                                sign_intent.putExtra("email", email);
+                                sign_intent.putExtra("state", mState);
+                                startActivity(sign_intent);
+                            } else {
+                                Log.d(TAG, "No Such Document");
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                    }
+                        }
+                });
+        }
         } else {
 
         }
@@ -224,10 +249,73 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
             createAccount(mEmailField.getText().toString(), mPasswordField.getText().toString());
         } else if (i == R.id.btnLogin) {
             signIn(mEmailField.getText().toString(), mPasswordField.getText().toString());
+<<<<<<<
         } //else if (i == R.id.Google_Login) {
             //Intent signInIntent = mGoogleSignInClient.getSignInIntent();
             //startActivityForResult(signInIntent, RC_SIGN_IN);
        // }
+=======
+<<<<<<< Updated upstream
+        } //else if (i == R.id.Google_Login) {
+            //Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+            //startActivityForResult(signInIntent, RC_SIGN_IN);
+       // }
+=======
+        }
+>>>>>>>
     }
+                db.collection(role)
+                        .whereEqualTo(id, phone)
+                        .get()
+                        .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                            @Override
+                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                                    if(name.equals(document.get("Name"))) {
+                                        Log.d(TAG, "Exist User");
+                                        createAccount(email, password);
+                                    } else {
+                                        Log.d(TAG, "Not Exist User");
+                                        Toast.makeText(LoginActivity.this, "병원에 정보가 없습니다.", Toast.LENGTH_LONG).show();
+                                    }
+                                }
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d(TAG,"Not Exist User");
+                                Toast.makeText(LoginActivity.this, "병원에 정보가 없습니다.", Toast.LENGTH_LONG).show();
+                            }
+                        });
+            @Override
+            public void onNegativeClicked() {
+
+            }
+        });
+        registerDialog.show();
+
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+
+        Window window = registerDialog.getWindow();
+        int x = (int)(size.x * 0.8f);
+        int y = (int)(size.y * 0.7f);
+        window.setLayout(x, y);
+    }
+    public void setRegister() {
+        RegisterDialog registerDialog = new RegisterDialog(this);
+        registerDialog.setDialogListener(new RegisterDialog.RegisterDialogListener() {
+            @Override
+            public void onPositiveClicked(Boolean state, final String name, final String email, final String password, String phone) {
+                mUserInfo.setUserInfo(state, name, email, phone);
+                String role, id;
+                if(state) {
+                    role = "Dr";    id = "D_id";
+                } else {
+                    role = "Patient";   id = "P_id";
+                }
+                Log.i(TAG + " role, id, phone ", role +"," + id + ", " + phone);
+
 }
 
