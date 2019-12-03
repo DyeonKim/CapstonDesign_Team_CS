@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
     private Button btnInfoRounding, btnChatting, btnLogOut;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
-    Boolean state;
+    private Boolean state = false;
     private String phone;
 
     @Override
@@ -40,21 +40,23 @@ public class MainActivity extends AppCompatActivity {
 
         FirebaseUser user = mAuth.getCurrentUser();
 
-        getAccountInfo(user);
-
-        Log.d(TAG + " state, phone : ", state.toString() + ", " + phone);
+        //getAccountInfo(user);
 
         btnInfoRounding.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(state) {
-                    Intent intent = new Intent(MainActivity.this, Rounding_DActivity.class);
-                    intent.putExtra("phone", phone);
-                    startActivity(intent);
+                if(state != null) {
+                    if(state) {
+                        Intent intent = new Intent(MainActivity.this, Rounding_DActivity.class);
+                        //intent.putExtra("phone", phone);
+                        startActivity(intent);
+                    } else {
+                        Intent intent = new Intent(MainActivity.this, Rounding_PActivity.class);
+                        //intent.putExtra("phone", phone);
+                        startActivity(intent);
+                    }
                 } else {
-                    Intent intent = new Intent(MainActivity.this, Rounding_PActivity.class);
-                    intent.putExtra("phone", phone);
-                    startActivity(intent);
+                    Log.d(TAG, "state is Null!");
                 }
             }
         });
@@ -76,13 +78,16 @@ public class MainActivity extends AppCompatActivity {
     private void getAccountInfo(FirebaseUser user) {
         if(user != null) {
             String email = user.getEmail();
+            Log.d(TAG + "email", email);
             DocumentReference docRef = db.collection("Account").document(email);
             docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     Log.d(TAG,"Success get userInfo");
-                    state = documentSnapshot.getBoolean("state");
-                    phone = documentSnapshot.getString("phone");
+                    final Boolean mState = documentSnapshot.getBoolean("state");
+                    final String mPhone = documentSnapshot.getString("phone");
+                    Log.d(TAG + " mState, mPhone : ", mState + ", " + mPhone);
+                    setExtraData(mState, mPhone);
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -91,5 +96,10 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    public void setExtraData(Boolean state, String phone) {
+        this.state = state;
+        this.phone = phone;
     }
 }
