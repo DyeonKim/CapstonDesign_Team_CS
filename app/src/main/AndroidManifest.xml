@@ -25,7 +25,6 @@
         <activity android:name=".BoardActivity" />
         <activity android:name=".ChattingActivity" />
         <activity android:name=".ChatMainActivity" />
-        <activity android:name=".DetailActivity" />
         <activity android:name=".Rounding_DActivity" />
         <activity android:name=".Rounding_PActivity" />
         <activity android:name=".CreateAccountActivity" />
