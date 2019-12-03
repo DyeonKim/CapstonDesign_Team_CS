@@ -32,9 +32,8 @@ import java.util.Map;
 
 public class LoginActivity extends BaseActivity implements View.OnClickListener {
     private static final String TAG = "Login";
-    private static final int RC_SIGN_IN = 9001;
-    private static final int SIGN_IN = 9002;
-    private static final int CREATE_ACCOUNT = 9003;
+    private static final int SIGN_IN = 9001;
+    private static final int CREATE_ACCOUNT = 9002;
     private int buttonCode = -1;
 
     UserInfo mUserInfo;
