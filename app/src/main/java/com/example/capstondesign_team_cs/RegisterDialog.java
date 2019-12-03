@@ -102,15 +102,11 @@ public class RegisterDialog extends Dialog implements View.OnClickListener {
         boolean valid = true;
 
         if(mCheckedId != R.id.stateDoctor && mCheckedId != R.id.statePatient) {
-            RadioButton statePatient = findViewById(R.id.statePatient);
             RadioButton stateDoctor = findViewById(R.id.stateDoctor);
-            statePatient.setError("Required.");
             stateDoctor.setError("Required.");
             valid = false;
         } else {
-            RadioButton statePatient = findViewById(R.id.statePatient);
             RadioButton stateDoctor = findViewById(R.id.stateDoctor);
-            statePatient.setError(null);
             stateDoctor.setError(null);
         }
         String name = nameField.getText().toString();

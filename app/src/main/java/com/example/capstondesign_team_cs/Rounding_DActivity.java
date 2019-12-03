@@ -24,8 +24,6 @@ import com.minew.beacon.MinewBeacon;
 import com.minew.beacon.MinewBeaconManager;
 import com.minew.beacon.MinewBeaconManagerListener;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -58,7 +56,6 @@ public class Rounding_DActivity extends AppCompatActivity {
 
         beaconManager = MinewBeaconManager.getInstance(getApplicationContext());
         uuid[0] = UUID.fromString("74278BDA-B644-4520-8F0C-720EAF059935");
-
 
         btnStartRounding = findViewById(R.id.btnStartRounding);
         btnCancelRounding = findViewById(R.id.btnCancelRounding);

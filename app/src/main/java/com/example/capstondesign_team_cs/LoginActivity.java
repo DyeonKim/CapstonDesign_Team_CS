@@ -1,11 +1,15 @@
 package com.example.capstondesign_team_cs;
 
 import android.content.Intent;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
+import android.view.Window;
 import android.widget.EditText;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -17,36 +21,35 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class LoginActivity extends BaseActivity implements View.OnClickListener{
+public class LoginActivity extends BaseActivity implements View.OnClickListener {
     private static final String TAG = "Login";
     private static final int SIGN_IN = 9001;
     private static final int CREATE_ACCOUNT = 9002;
     private int buttonCode = -1;
-    boolean mState;
-    List userInfo;  //Name, Email, phone
+
+    UserInfo mUserInfo;
 
     private EditText mEmailField;
     private EditText mPasswordField;
 
-    // [START declare_auth]
     private FirebaseAuth mAuth;
-    // [END declare_auth]
-    FirebaseFirestore db;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        userInfo = new ArrayList();
+        mUserInfo = new UserInfo();
         mEmailField = findViewById(R.id.userEmail);
         mPasswordField = findViewById(R.id.password);
 
@@ -56,7 +59,9 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
+
     }
+
 
     // [START on_start_check_user]
     @Override
@@ -161,22 +166,21 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         if (user != null) {
             if (buttonCode == CREATE_ACCOUNT) {
                 Map<String, Object> account = new HashMap<>();
-                account.put("State", mState);
-                account.put("Name", userInfo.get(0).toString());
-                account.put("Email", userInfo.get(1).toString());
-                account.put("Phone", userInfo.get(2).toString());
+                account.put("State", mUserInfo.getUserState());
+                account.put("Name", mUserInfo.getUserName());
+                account.put("Email", mUserInfo.getUserEmail());
+                account.put("Phone", mUserInfo.getUserPhone());
 
                 // Add a new document with a generated ID
-                db.collection("Account").document(userInfo.get(1).toString())
+                db.collection("Account").document(mUserInfo.getUserEmail())
                         .set(account)
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                Log.d(TAG, "DocumentSnapshot added with ID: " + userInfo.get(1).toString());
+                                Log.d(TAG, "DocumentSnapshot added with ID: " + mUserInfo.getUserEmail());
                                 Toast.makeText(getApplicationContext(),"계정 생성 완료", Toast.LENGTH_LONG).show();
                             }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
+                        }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 Log.w(TAG, "Error adding document", e);
@@ -184,16 +188,21 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                         });
 
             }
-        else if (buttonCode == SIGN_IN) {
-            String email = mAuth.getCurrentUser().getEmail();
-            db.collection("Account").document(email)
-                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            else if (buttonCode == SIGN_IN) {
+                final String email = mAuth.getCurrentUser().getEmail();
+
+                db.collection("Account").document(email)
+                        .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if(task.isSuccessful()) {
                             DocumentSnapshot document = task.getResult();
                             if(document.exists()) {
-                                mState = document.getBoolean("State");
+                                Boolean mState = document.getBoolean("State");
+                                Log.i(TAG + "email", email);
+                                Log.i(TAG + " mState", mState.toString());
+                                Intent sign_intent = new Intent(getApplicationContext(), MainActivity.class);
+                                startActivity(sign_intent);
                             } else {
                                 Log.d(TAG, "No Such Document");
                             }
@@ -202,15 +211,12 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                         }
                     }
                 });
-
-            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-            intent.putExtra("state", mState);
-            startActivity(intent);
-        }
+            }
         } else {
             Log.d(TAG,"Error Sign In");
         }
     }
+
 
     @Override
     public void onClick(View v) {
@@ -226,12 +232,38 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         RegisterDialog registerDialog = new RegisterDialog(this);
         registerDialog.setDialogListener(new RegisterDialog.RegisterDialogListener() {
             @Override
-            public void onPositiveClicked(Boolean state, String name, String email, String password, String phone) {
-                mState = state;
-                userInfo.add(name);
-                userInfo.add(email);
-                userInfo.add(phone);
-                createAccount(email, password);
+            public void onPositiveClicked(Boolean state, final String name, final String email, final String password, String phone) {
+                mUserInfo.setUserInfo(state, name, email, phone);
+                String role, id;
+                if(state) {
+                    role = "Dr";    id = "D_id";
+                } else {
+                    role = "Patient";   id = "P_id";
+                }
+                Log.i(TAG + " role, id ", role +"," + id);
+                db.collection(role)
+                        .whereEqualTo(id, phone)
+                        .get()
+                        .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                            @Override
+                            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                for(DocumentSnapshot document : queryDocumentSnapshots) {
+                                    if(name.equals(document.get("Name"))) {
+                                        Log.d(TAG,"Exist User");
+                                        createAccount(email, password);
+                                    } else {
+                                        Log.d(TAG,"Not Exist User");
+                                        Toast.makeText(getApplicationContext(), "병원에 정보가 없습니다.", Toast.LENGTH_LONG);
+                                    }
+                                }
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d(TAG,"Not Exist User");
+                                Toast.makeText(getApplicationContext(), "병원에 정보가 없습니다.", Toast.LENGTH_LONG);
+                            }
+                        });
             }
 
             @Override
@@ -239,7 +271,16 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
             }
         });
-        registerDialog.show();
-    }
-}
 
+        registerDialog.show();
+
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+
+        Window window = registerDialog.getWindow();
+        int x = (int)(size.x * 0.8f);
+        int y = (int)(size.y * 0.7f);
+        window.setLayout(x, y);
+        }
+}
