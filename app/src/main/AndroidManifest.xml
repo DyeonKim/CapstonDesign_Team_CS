@@ -21,12 +21,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ChattingActivity"/>
+        <activity android:name=".PostActivity"></activity>
+        <activity android:name=".BoardActivity" />
+        <activity android:name=".ChattingActivity" />
         <activity android:name=".ChatMainActivity" />
         <activity android:name=".DetailActivity" />
         <activity android:name=".Rounding_DActivity" />
         <activity android:name=".Rounding_PActivity" />
-        <activity android:name=".ArticleActivity" />
+        <activity android:name=".CreateAccountActivity" />
         <activity android:name=".MainActivity" />
         <activity android:name=".BaseActivity" />
         <activity android:name=".LoginActivity">
