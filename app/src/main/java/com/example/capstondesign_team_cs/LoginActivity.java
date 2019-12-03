@@ -199,12 +199,9 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                             DocumentSnapshot document = task.getResult();
                             if(document.exists()) {
                                 Boolean mState = document.getBoolean("State");
-                                Log.i(TAG + " mState", mState.toString());
                                 Log.i(TAG + "email", email);
                                 Log.i(TAG + " mState", mState.toString());
                                 Intent sign_intent = new Intent(getApplicationContext(), MainActivity.class);
-                                sign_intent.putExtra("email", email);
-                                sign_intent.putExtra("state", mState);
                                 startActivity(sign_intent);
                             } else {
                                 Log.d(TAG, "No Such Document");

@@ -53,7 +53,7 @@ public class ChatMainActivity extends AppCompatActivity {
                     return;
                 //user_chat.getText().toString()
                 Intent intent = new Intent(ChatMainActivity.this, ChattingActivity.class);
-
+                /*
                 if (login.idGroup.equals("Patient")) {
                     intent.putExtra("chatName", user_chat.getText());
                     intent.putExtra("userName", user_edit.getText().toString());
@@ -63,6 +63,7 @@ public class ChatMainActivity extends AppCompatActivity {
                     intent.putExtra("userName", user_edit.getText().toString());
                     startActivity(intent);
                 }
+                 */
             }
         });
 
