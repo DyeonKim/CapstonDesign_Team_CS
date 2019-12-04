@@ -29,12 +29,12 @@ public class ChatMainActivity extends AppCompatActivity {
 
     private EditText user_edit;
     private EditText user_chat;
-    private Button user_next;
+    private Button user_next, board_next;
     private ListView chat_list;
 
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private DatabaseReference databaseReference = database.getReference("message");
-    private DatabaseReference dataRef = database.getReference("name");
+    private DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +45,28 @@ public class ChatMainActivity extends AppCompatActivity {
         user_edit = (EditText) findViewById(R.id.user_edit);
         user_next =  (Button) findViewById(R.id.user_next);
         chat_list = (ListView) findViewById(R.id.chat_list);
+        board_next = (Button) findViewById(R.id.board_next);
+
+        mDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        board_next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent change_view = new Intent(ChatMainActivity.this, BoardActivity.class);
+                startActivity(change_view);
+
+            }
+        });
 
         user_next.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,6 +76,11 @@ public class ChatMainActivity extends AppCompatActivity {
                 //user_chat.getText().toString()
                 Intent intent = new Intent(ChatMainActivity.this, ChattingActivity.class);
 
+                intent.putExtra("chatName", user_chat.getText().toString());
+                intent.putExtra("userName", user_edit.getText().toString());
+                startActivity(intent);
+
+                /*
                 if (login.idGroup.equals("Patient")) {
                     intent.putExtra("chatName", user_chat.getText());
                     intent.putExtra("userName", user_edit.getText().toString());
@@ -63,6 +90,7 @@ public class ChatMainActivity extends AppCompatActivity {
                     intent.putExtra("userName", user_edit.getText().toString());
                     startActivity(intent);
                 }
+                 */
             }
         });
 

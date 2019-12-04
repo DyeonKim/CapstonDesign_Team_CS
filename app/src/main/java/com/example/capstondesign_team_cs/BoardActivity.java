@@ -3,6 +3,7 @@ package com.example.capstondesign_team_cs;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
@@ -29,6 +30,7 @@ public class BoardActivity extends AppCompatActivity implements View.OnClickList
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private FirebaseFirestore mStore = FirebaseFirestore.getInstance();
     private RecyclerView mPostRecyclerView;
+    private RecyclerView.LayoutManager mLayoutManager;
 
     private PostAdapter mAdapter;
     private List<Post> mDatas;
@@ -46,6 +48,7 @@ public class BoardActivity extends AppCompatActivity implements View.OnClickList
         mDatas.add(new Post(null, "title", "contents")); */
 
         findViewById(R.id.post_edit).setOnClickListener(this);
+        mLayoutManager = new LinearLayoutManager(this);
     }
 
     @Override
@@ -70,6 +73,7 @@ public class BoardActivity extends AppCompatActivity implements View.OnClickList
                             }
 
                             mAdapter = new PostAdapter(mDatas);
+                            mPostRecyclerView.setLayoutManager(mLayoutManager);
                             mPostRecyclerView.setAdapter(mAdapter);
                         }
                     }
