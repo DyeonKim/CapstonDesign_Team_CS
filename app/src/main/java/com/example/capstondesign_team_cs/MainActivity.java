@@ -1,5 +1,6 @@
 package com.example.capstondesign_team_cs;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -8,31 +9,54 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 public class MainActivity extends AppCompatActivity {
-    Button btnInfoRounding, btnChatting;
-    String idGroup;
+    private static final String TAG = "Main";
+    private Button btnInfoRounding, btnChatting, btnLogOut;
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
+    private Boolean state;
+    private String phone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
         btnInfoRounding = findViewById(R.id.btnInfoRounding);
         btnChatting = findViewById(R.id.btnChatting);
+        btnLogOut = findViewById(R.id.buttonLogOut);
 
-        Intent logIn_intent = getIntent();
-        idGroup = logIn_intent.getExtras().getString("idGroup");
-        Log.d("idGroup",idGroup);
+        FirebaseUser user = mAuth.getCurrentUser();
+
+        getAccountInfo(user);
 
         btnInfoRounding.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(idGroup.equals("Patient")) {
-                    Intent intent = new Intent(MainActivity.this, Rounding_PActivity.class);
-                    startActivity(intent);
-                } else if(idGroup.equals("Doctor")) {
-                    Intent intent = new Intent(MainActivity.this, Rounding_DActivity.class);
-                    startActivity(intent);
+                if(state != null) {
+                    if(state) {
+                        Intent intent = new Intent(MainActivity.this, Rounding_DActivity.class);
+                        intent.putExtra("phone", phone);
+                        startActivity(intent);
+                    } else {
+                        Intent intent = new Intent(MainActivity.this, Rounding_PActivity.class);
+                        intent.putExtra("phone", phone);
+                        startActivity(intent);
+                    }
+                } else {
+                    Log.d(TAG, "state is Null!");
                 }
             }
         });
@@ -43,5 +67,39 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        btnLogOut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAuth.signOut();
+            }
+        });
+    }
+
+    private void getAccountInfo(FirebaseUser user) {
+        if(user != null) {
+            String email = user.getEmail();
+            Log.d(TAG + "email", email);
+            DocumentReference docRef = db.collection("Account").document(email);
+            docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    Log.d(TAG,"Success get userInfo");
+                    final Boolean mState = documentSnapshot.getBoolean("State");
+                    final String mPhone = documentSnapshot.getString("Phone");
+                    Log.d(TAG + " mState, mPhone : ", mState + ", " + mPhone);
+                    setExtraData(mState, mPhone);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.d(TAG,"Fail get accountInfo");
+                }
+            });
+        }
+    }
+
+    public void setExtraData(Boolean state, String phone) {
+        this.state = state;
+        this.phone = phone;
     }
 }
