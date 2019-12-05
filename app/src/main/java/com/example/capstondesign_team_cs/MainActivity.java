@@ -71,6 +71,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mAuth.signOut();
+                Log.d(TAG, "Sign Out");
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+                Log.d(TAG, "finish");
+                finish();
             }
         });
     }

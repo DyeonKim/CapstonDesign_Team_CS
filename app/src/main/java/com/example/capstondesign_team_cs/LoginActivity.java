@@ -200,6 +200,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                             if(document.exists()) {
                                 Intent sign_intent = new Intent(getApplicationContext(), MainActivity.class);
                                 startActivity(sign_intent);
+                                finish();
                             } else {
                                 Log.d(TAG, "No Such Document");
                             }
