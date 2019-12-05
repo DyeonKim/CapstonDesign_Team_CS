@@ -25,6 +25,7 @@ public class Rounding_PActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rounding__p);
+        //
         btnRefresh = findViewById(R.id.btnRefresh);
         txtDoctorLocation = findViewById(R.id.txtDoctorLocation);
         btnClickListener();
@@ -60,17 +61,23 @@ public class Rounding_PActivity extends AppCompatActivity {
     public void getDoctorId() {
         Intent paIntent = getIntent();
         phoneNum = paIntent.getExtras().getString("phone");
+        Log.d("phoneNum", phoneNum);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference patientRef = db.collection("Patient").document(phoneNum);
         patientRef.get().addOnCompleteListener(task_patient -> {
             if (task_patient.isSuccessful()) {
                 DocumentSnapshot document_patient = task_patient.getResult();
-                d_id = document_patient.getString("D_id");
-                //return d_id;//D_id get 완료
+                String id = document_patient.getString("D_id");
+                Log.d("D_id", id);
+                setDoctorID(id);
             } else {
                 Log.d("state", "D_id task fail");
             }
         });
+    }
+
+    public void setDoctorID(String id) {
+        d_id = id;
     }
 
     public void getMinor(){
@@ -79,11 +86,17 @@ public class Rounding_PActivity extends AppCompatActivity {
         drRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
-                minor = document.getString("Location");
+                String mMinor = document.getString("Location");
+                Log.d("minor", mMinor);
+                setRoomNum(mMinor);
             } else {
                 Log.d("state", "minor task fail");
             }
         });
+    }
+
+    public void setRoomNum(String num) {
+        minor = num;
     }
 
     /*//getRoomNum 원본
@@ -141,28 +154,31 @@ public class Rounding_PActivity extends AppCompatActivity {
     }
 
 */
+    /*
     public void getRoomNum(){
         getMinor();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference drRef = db.collection("Room").document(minor);
         drRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+                Log.d("state", "room number task fail");
                 DocumentSnapshot document = task.getResult();
                 roomNum = document.getString("Number");
             } else {
-                Log.d("state", "room number task fail");
             }
         });
     }
+     */
 
     public void btnClickListener() {
         btnRefresh.setOnClickListener(v -> {
             getDoctorId();
             if (d_id == null) {
-                txtDoctorLocation.setText("배정된 담당의가 없습니다.");
+                txtDoctorLocation.setText("배정된 담당의가\n없습니다.");
             } else {
-                getRoomNum();
-                txtDoctorLocation.setText(roomNum + "회진 중");
+                //getRoomNum();
+                getMinor();
+                txtDoctorLocation.setText(minor + "회진 중");
 
             }
         });
