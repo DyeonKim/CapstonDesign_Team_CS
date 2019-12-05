@@ -3,6 +3,8 @@ package com.example.capstondesign_team_cs;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,12 +25,15 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 
+import java.util.List;
+
 public class ChatMainActivity extends AppCompatActivity {
 
     LoginActivity login = new LoginActivity();
+    UserInfo userInfo = new UserInfo();
 
     private EditText user_edit;
-    private EditText user_chat;
+    private TextView user_chat;
     private Button user_next, board_next;
     private ListView chat_list;
 
@@ -41,23 +46,11 @@ public class ChatMainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_main);
 
-        user_chat = (EditText) findViewById(R.id.user_chat);
+        user_chat = (TextView) findViewById(R.id.user_chat);
         user_edit = (EditText) findViewById(R.id.user_edit);
         user_next =  (Button) findViewById(R.id.user_next);
-        chat_list = (ListView) findViewById(R.id.chat_list);
+        chat_list = findViewById(R.id.chat_list);
         board_next = (Button) findViewById(R.id.board_next);
-
-        mDatabase.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
 
         board_next.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,6 +66,7 @@ public class ChatMainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (user_edit.getText().toString().equals("") || user_chat.getText().toString().equals(""))
                     return;
+
                 //user_chat.getText().toString()
                 Intent intent = new Intent(ChatMainActivity.this, ChattingActivity.class);
 
@@ -81,16 +75,15 @@ public class ChatMainActivity extends AppCompatActivity {
                 startActivity(intent);
 
                 /*
-                if (login.idGroup.equals("Patient")) {
-                    intent.putExtra("chatName", user_chat.getText());
+               if (login.mUserInfo.getUserState() == true) {
+                   intent.putExtra("chatName", login.mUserInfo.getUserPhone().toString());
+                   intent.putExtra("userName", user_edit.getText().toString());
+                   startActivity(intent);
+               } else {
+                    intent.putExtra("chatName", login.mUserInfo.getUserPhone().toString());
                     intent.putExtra("userName", user_edit.getText().toString());
                     startActivity(intent);
-                } else if (login.idGroup.equals("Dr")) {
-                    intent.putExtra("chatName", user_chat.getText());
-                    intent.putExtra("userName", user_edit.getText().toString());
-                    startActivity(intent);
-                }
-                 */
+                } */
             }
         });
 
@@ -104,8 +97,8 @@ public class ChatMainActivity extends AppCompatActivity {
         databaseReference.child("chat").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Log.e("LOG", "dataSnapshot.getKey() : " + dataSnapshot.getKey());
-                adapter.add(dataSnapshot.getKey());
+                Log.d("LOG", "dataSnapshot.getKey() : " + dataSnapshot.getKey());
+                adapter.add(user_chat.getText().toString());
             }
 
             @Override

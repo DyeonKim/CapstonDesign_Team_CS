@@ -1,6 +1,9 @@
 package com.example.capstondesign_team_cs;
 
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -18,6 +21,40 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         this.datas = datas;
     }
 
+     public class CustomViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
+
+         public CustomViewHolder(@NonNull View itemView) {
+             super(itemView);
+
+             itemView.setOnCreateContextMenuListener(this);
+         }
+
+         @Override
+        public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+             MenuItem Edit = menu.add(Menu.NONE, 1001, 1, "수정");
+             MenuItem Delete = menu.add(Menu.NONE, 1002, 2, "삭제");
+             //Edit.setOnMenuItemClickListener(onEditMenu);
+             Delete.setOnMenuItemClickListener(onDeleteMenu);
+        }
+
+        private final MenuItem.OnMenuItemClickListener onDeleteMenu = new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case 1001:
+                        break;
+
+                    case 1002:
+                        datas.remove(getAdapterPosition());
+                        notifyItemRemoved(getAdapterPosition());
+                        notifyItemRangeChanged(getAdapterPosition(), datas.size());
+                        break;
+
+                }
+                return true;
+            }
+        };
+    }
     @NonNull
     @Override
     public PostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

@@ -3,11 +3,9 @@ package com.example.capstondesign_team_cs;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -15,23 +13,32 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.minew.beacon.BeaconValueIndex;
 import com.minew.beacon.BluetoothState;
 import com.minew.beacon.MinewBeacon;
 import com.minew.beacon.MinewBeaconManager;
 import com.minew.beacon.MinewBeaconManagerListener;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+
+
+
 
 public class Rounding_DActivity extends AppCompatActivity {
     final static int PERMISSIONS = 100;
     int nSelectReason = -1;
+    static String phoneNum;
 
     MinewBeaconManager beaconManager;
     final static int BT_REQUEST_ENABLE = 2;
     boolean isScanning = false;
     UUID[] uuid = new UUID[1];
+    List<Integer> rssi = new ArrayList<>();
 
     Button btnStartRounding, btnCancelRounding;
     TextView tvInfoRounding, tvRoom;
@@ -63,63 +70,64 @@ public class Rounding_DActivity extends AppCompatActivity {
     }
 
     public void btnClickListener() {
-        btnStartRounding.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(Rounding_DActivity.this, android.R.style.Theme_DeviceDefault_Light_Dialog);
-                alertDialogBuilder.setMessage("회진을 시작하시겠습니까?");
-                alertDialogBuilder.setPositiveButton("네", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        initBluetooth();
-                        beaconScan();
-                        tvInfoRounding.setText("회진 중");
-                        Toast.makeText(getApplicationContext(),"회진을 시작합니다.", Toast.LENGTH_LONG).show();
-                        btnStartRounding.setEnabled(false);
-                        btnCancelRounding.setEnabled(true);
-                    }
-                });
-                alertDialogBuilder.setNegativeButton("아니오", null);
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                alertDialog.show();
-            }
+        btnStartRounding.setOnClickListener(v -> {
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(Rounding_DActivity.this, android.R.style.Theme_DeviceDefault_Light_Dialog);
+            alertDialogBuilder.setMessage("회진을 시작하시겠습니까?");
+            alertDialogBuilder.setPositiveButton("네", (dialog, which) -> {
+                initBluetooth();
+                beaconScan();
+                tvInfoRounding.setText("회진 중");
+                Toast.makeText(getApplicationContext(),"회진을 시작합니다.", Toast.LENGTH_LONG).show();
+                btnStartRounding.setEnabled(false);
+                btnCancelRounding.setEnabled(true);
+            });
+            alertDialogBuilder.setNegativeButton("아니오", null);
+            AlertDialog alertDialog = alertDialogBuilder.create();
+            alertDialog.show();
         });
-        btnCancelRounding.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final String[] cancelReasons = {"회진이 끝났습니다.", "긴급수술로 인해 회진을 취소합니다."};
-                AlertDialog.Builder builder = new AlertDialog.Builder(Rounding_DActivity.this);
-                builder.setTitle("회진 취소 사유를 선택하세요")
-                        .setSingleChoiceItems(cancelReasons, -1, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                nSelectReason = which;
-                            }
-                        })
-                        .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                if(nSelectReason >= 0) {
-                                    beaconScan();
-                                    tvInfoRounding.setText("회진시간이 아닙니다.");
-                                    tvRoom.setText("");
-                                    Toast.makeText(getApplicationContext(), cancelReasons[nSelectReason], Toast.LENGTH_LONG).show();
-                                    btnStartRounding.setEnabled(true);
-                                    btnCancelRounding.setEnabled(false);
-                                    nSelectReason = -1;
-                                }
-                                else {
-                                    Toast.makeText(getApplicationContext(), "이유를 선택하세요.", Toast.LENGTH_LONG).show();
-                                }
-                            }
-                        })
-                        .setNeutralButton("취소", null);
-                builder.create();
-                builder.show();
-            }
+        btnCancelRounding.setOnClickListener(v -> {
+            final String[] cancelReasons = {"회진이 끝났습니다.", "긴급수술로 인해 회진을 취소합니다."};
+            AlertDialog.Builder builder = new AlertDialog.Builder(Rounding_DActivity.this);
+            builder.setTitle("회진 취소 사유를 선택하세요")
+                    .setSingleChoiceItems(cancelReasons, -1, (dialog, which) -> nSelectReason = which)
+                    .setPositiveButton("확인", (dialog, which) -> {
+                        if(nSelectReason >= 0) {
+                            beaconScan();
+                            tvInfoRounding.setText("회진시간이 아닙니다.");
+                            tvRoom.setText("");
+                            Toast.makeText(getApplicationContext(), cancelReasons[nSelectReason], Toast.LENGTH_LONG).show();
+                            btnStartRounding.setEnabled(true);
+                            btnCancelRounding.setEnabled(false);
+                            nSelectReason = -1;
+                        }
+                        else {
+                            Toast.makeText(getApplicationContext(), "이유를 선택하세요.", Toast.LENGTH_LONG).show();
+                        }
+                    })
+                    .setNeutralButton("취소", null);
+            builder.create();
+            builder.show();
         });
     }
-
+/*
+    public void getPhoneNum(){
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            String email = user.getEmail();
+            //phoneNum get 하기
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            DocumentReference accountRef = db.collection("Account").document(email);
+            accountRef.get().addOnCompleteListener(task_phone -> {
+                if (task_phone.isSuccessful()) {
+                    DocumentSnapshot document_phone = task_phone.getResult();
+                    phoneNum = document_phone.getString("Phone");
+                } else {
+                    Log.d("state", "phoneNum task fail");
+                }
+            });
+        }
+    }
+*/
     public void setBeaconManager() {
         beaconManager.setDeviceManagerDelegateListener(new MinewBeaconManagerListener() {
             @Override
@@ -140,23 +148,36 @@ public class Rounding_DActivity extends AppCompatActivity {
                     if(strUUID != null && strUUID.equalsIgnoreCase(uuid[0].toString())) {
                         String deviceName = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_Name).getStringValue();
                         Log.d("Disappear", deviceName);
-                        tvRoom.setText((deviceName + "퇴장"));
+                        //비콘퇴장
                     }
                 }
             }
 
             @Override
-            public void onRangeBeacons(List<MinewBeacon> beacons) {
-                for(MinewBeacon beacon : beacons) {
-                    String strUUID = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_UUID).getStringValue();
-                    if(strUUID != null && strUUID.equalsIgnoreCase(uuid[0].toString())) {
-                        if(beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_RSSI).getIntValue() > - 65) {
-                            String deviceName = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_Name).getStringValue();
-                            Log.d("state", deviceName);
-                            tvRoom.setText(deviceName + "입장");
+            public void onRangeBeacons(final List<MinewBeacon> beacons) {
+
+                runOnUiThread(() -> {
+                    //String phoneNum = getPhoneNum();
+                    for (MinewBeacon beacon : beacons) {
+                        String strUUID = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_UUID).getStringValue(); //비콘 uuid 가져오기
+                        if (strUUID != null && strUUID.equalsIgnoreCase(uuid[0].toString())) {
+                            rssi.add(beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_RSSI).getIntValue()); //비콘 RSSI를 arraylist RSSI에 추가하기
+                            Integer max = Collections.max(rssi); //max : RSSI배열에서 가장 큰 값
+                            if (beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_RSSI).getIntValue() >= max) {
+                                //String deviceName = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_Name).getStringValue();
+                                String minor = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_Minor).getStringValue();
+                                Log.d("state", minor);
+                                tvRoom.setText(minor + "입장");
+                                Intent paIntent = getIntent();
+                                phoneNum = paIntent.getExtras().getString("phone");
+                                FirebaseFirestore db = FirebaseFirestore.getInstance(); //파이어스토어 서버에 접속
+                                DocumentReference drRef = db.collection("Dr").document(phoneNum); //지금 로그인한 의료진의 document ID
+                                drRef.update("Location", minor);
+                            }
                         }
                     }
-                }
+                    rssi.clear();
+                });
             }
 
             @Override
