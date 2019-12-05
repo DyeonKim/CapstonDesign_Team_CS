@@ -32,5 +32,6 @@ public class UserInfo {
     public String getUserPhone() {
         return phone;
     }
+
 }
 

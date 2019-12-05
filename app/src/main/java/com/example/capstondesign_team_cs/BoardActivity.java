@@ -3,6 +3,7 @@ package com.example.capstondesign_team_cs;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -48,7 +49,8 @@ public class BoardActivity extends AppCompatActivity implements View.OnClickList
         mDatas.add(new Post(null, "title", "contents")); */
 
         findViewById(R.id.post_edit).setOnClickListener(this);
-        mLayoutManager = new LinearLayoutManager(this);
+        mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+
     }
 
     @Override
@@ -71,6 +73,8 @@ public class BoardActivity extends AppCompatActivity implements View.OnClickList
                                 Post data = new Post(documentId, title, contents);
                                 mDatas.add(data);
                             }
+
+                            mPostRecyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
 
                             mAdapter = new PostAdapter(mDatas);
                             mPostRecyclerView.setLayoutManager(mLayoutManager);
