@@ -64,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, ChatMainActivity.class);
+                intent.putExtra("state", state);
+                intent.putExtra("phone", phone);
                 startActivity(intent);
             }
         });
