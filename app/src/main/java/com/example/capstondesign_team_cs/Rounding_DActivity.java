@@ -13,10 +13,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.minew.beacon.BeaconValueIndex;
 import com.minew.beacon.BluetoothState;
@@ -24,6 +21,8 @@ import com.minew.beacon.MinewBeacon;
 import com.minew.beacon.MinewBeaconManager;
 import com.minew.beacon.MinewBeaconManagerListener;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -110,7 +109,7 @@ public class Rounding_DActivity extends AppCompatActivity {
             builder.show();
         });
     }
-
+/*
     public void getPhoneNum(){
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
@@ -128,7 +127,7 @@ public class Rounding_DActivity extends AppCompatActivity {
             });
         }
     }
-
+*/
     public void setBeaconManager() {
         beaconManager.setDeviceManagerDelegateListener(new MinewBeaconManagerListener() {
             @Override
@@ -169,7 +168,8 @@ public class Rounding_DActivity extends AppCompatActivity {
                                 String minor = beacon.getBeaconValue(BeaconValueIndex.MinewBeaconValueIndex_Minor).getStringValue();
                                 Log.d("state", minor);
                                 tvRoom.setText(minor + "입장");
-                                getPhoneNum();
+                                Intent paIntent = getIntent();
+                                phoneNum = paIntent.getExtras().getString("phone");
                                 FirebaseFirestore db = FirebaseFirestore.getInstance(); //파이어스토어 서버에 접속
                                 DocumentReference drRef = db.collection("Dr").document(phoneNum); //지금 로그인한 의료진의 document ID
                                 drRef.update("Location", minor);

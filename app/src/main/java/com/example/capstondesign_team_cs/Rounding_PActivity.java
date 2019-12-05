@@ -1,5 +1,6 @@
 package com.example.capstondesign_team_cs;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -7,13 +8,9 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 
 public class Rounding_PActivity extends AppCompatActivity {
     Button btnRefresh;
@@ -22,24 +19,19 @@ public class Rounding_PActivity extends AppCompatActivity {
     static String d_id;
     static String phoneNum;
     static String minor;
+    private String roomNum;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rounding__p);
-        btnClickListener();
         btnRefresh = findViewById(R.id.btnRefresh);
         txtDoctorLocation = findViewById(R.id.txtDoctorLocation);
+        btnClickListener();
+
     }
 
-
-/*
-    public String getRoomNum(){
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference roomRef = db.collection("Room").whereEqualTo("minor",)
-    }
-
-*/
+/*//폰 넘버 받기
     public void getPhoneNum(){
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
@@ -47,19 +39,27 @@ public class Rounding_PActivity extends AppCompatActivity {
             //phoneNum get 하기
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             DocumentReference accountRef = db.collection("Account").document(email);
-            accountRef.get().addOnCompleteListener(task_phone -> {
-                if (task_phone.isSuccessful()) {
-                    DocumentSnapshot document_phone = task_phone.getResult();
-                    phoneNum = document_phone.getString("Phone");
-                } else {
-                    Log.d("state", "phoneNum task fail");
+            accountRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        phoneNum = document.getString("Phone");
+                    } else {
+                        Log.d("state", "phoneNum task fail");
+                    }
                 }
             });
         }
     }
+*/
+
+//get PhoneNum 인텐트로
+
 
     public void getDoctorId() {
-        getPhoneNum();
+        Intent paIntent = getIntent();
+        phoneNum = paIntent.getExtras().getString("phone");
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference patientRef = db.collection("Patient").document(phoneNum);
         patientRef.get().addOnCompleteListener(task_patient -> {
@@ -75,7 +75,7 @@ public class Rounding_PActivity extends AppCompatActivity {
 
     public void getMinor(){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference drRef = db.collection("dr").document(d_id);
+        DocumentReference drRef = db.collection("Dr").document(d_id);
         drRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
@@ -86,6 +86,7 @@ public class Rounding_PActivity extends AppCompatActivity {
         });
     }
 
+    /*//getRoomNum 원본
     public Query getRoomNum(){
         getMinor();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -93,8 +94,66 @@ public class Rounding_PActivity extends AppCompatActivity {
         Query room = roomRef.whereEqualTo("minor",minor);
         return room;
     }
+     */
+
+    /* 룸 넘버 주석처리 이거 아래 코드 있음
+    public void getRoomNum(){
+        getMinor();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference roomRef = db.collection("Room");
+        roomRef.whereEqualTo("minor",minor).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        //Log.d(TAG, document.getId() + " => " + document.getData());
+                        roomNum = document.getData();
+                    }
+                } else {
+                    //Log.d(TAG, "Error getting documents: ", task.getException());
+                }
+            }
+        });
+    }
 
 
+    private void getRoomNum() {
+        getMinor();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference drRef = db.collection("Room").document(minor);
+        drRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                //Log.d(TAG,"Success get Room Number");
+                final String mRoom = documentSnapshot.getString("Number");
+                setExtraData(mRoom);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                //Log.d(TAG,"Fail get Room Number");
+            }
+        });
+    }
+
+    public void setExtraData(String room) {
+        this.roomNum = room;
+    }
+
+*/
+    public void getRoomNum(){
+        getMinor();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference drRef = db.collection("Room").document(minor);
+        drRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                roomNum = document.getString("Number");
+            } else {
+                Log.d("state", "room number task fail");
+            }
+        });
+    }
 
     public void btnClickListener() {
         btnRefresh.setOnClickListener(v -> {
@@ -102,8 +161,9 @@ public class Rounding_PActivity extends AppCompatActivity {
             if (d_id == null) {
                 txtDoctorLocation.setText("배정된 담당의가 없습니다.");
             } else {
-                Query roomNum = getRoomNum();
+                getRoomNum();
                 txtDoctorLocation.setText(roomNum + "회진 중");
+
             }
         });
     }
