@@ -11,6 +11,10 @@
     <string name="login_failed">"Login failed"</string>
     <string name="title_activity_login">Sign in</string>
     <string name="loading">loading...</string>
+
+    <string name="button">Button</string>
+    <string name="content">내용</string>
+
     <!-- String related to create account-->
     <string name="radio_doctor">의사</string>
     <string name="radio_patient">환자</string>

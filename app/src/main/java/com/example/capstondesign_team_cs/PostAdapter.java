@@ -46,6 +46,15 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
             title = itemView.findViewById(R.id.item_post_title);
             contents = itemView.findViewById(R.id.item_post_contents);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int pos = getAdapterPosition();
+                    if (pos != RecyclerView.NO_POSITION) {
+                    }
+                }
+            });
         }
     }
 }

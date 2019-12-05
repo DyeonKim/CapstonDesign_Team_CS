@@ -21,7 +21,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".PostActivity"></activity>
+        <activity android:name=".PostActivity" />
         <activity android:name=".BoardActivity" />
         <activity android:name=".ChattingActivity" />
         <activity android:name=".ChatMainActivity" />
@@ -33,7 +33,7 @@
         <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
+                <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
